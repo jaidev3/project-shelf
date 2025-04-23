@@ -87,7 +87,7 @@ export default function NewCaseStudy() {
                 },
               ],
             },
-            username: currentUser.uid,
+            username: caseStudyData.username || currentUser.uid,
           });
         }
       } catch (error) {

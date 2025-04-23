@@ -7,6 +7,7 @@ import {
   createCaseStudy,
   updateCaseStudy,
   uploadCaseStudyImage,
+  isUsernameUnique,
 } from "../../apis/caseStudyService";
 import {
   CaseStudy,
@@ -28,6 +29,10 @@ import { showSuccessToast, showErrorToast } from "../../utils/toast";
 // Case study schema with Zod
 const caseStudySchema = z.object({
   userId: z.string(),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username cannot exceed 30 characters"),
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
   image: z.string().optional(),
@@ -78,6 +83,8 @@ export default function CaseStudyEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [isUsernameValid, setIsUsernameValid] = useState(true);
 
   // React Hook Form setup
   const {
@@ -91,6 +98,7 @@ export default function CaseStudyEditor() {
     resolver: zodResolver(caseStudySchema),
     defaultValues: {
       userId: currentUser?.uid || "",
+      username: "",
       title: "",
       description: "",
       image: "",
@@ -106,6 +114,50 @@ export default function CaseStudyEditor() {
       },
     },
   });
+
+  // Watch the username field
+  const watchedUsername = watch("username");
+
+  // Check username uniqueness when it changes
+  useEffect(() => {
+    const checkUsernameUniqueness = async () => {
+      if (watchedUsername && watchedUsername.length >= 3) {
+        setIsCheckingUsername(true);
+        try {
+          // Only check if the username changed from the original value when editing
+          const originalUsername =
+            caseStudyId && caseStudyId !== "new"
+              ? await getCaseStudy(caseStudyId).then(
+                  (study) => (study as any).username
+                )
+              : "";
+
+          if (watchedUsername !== originalUsername) {
+            const isUnique = await isUsernameUnique(watchedUsername);
+            setIsUsernameValid(isUnique);
+            if (!isUnique) {
+              setErrorMessage(
+                "This username is already taken. Please choose another one."
+              );
+            } else {
+              setErrorMessage("");
+            }
+          } else {
+            // If it's the same as the original, it's valid
+            setIsUsernameValid(true);
+            setErrorMessage("");
+          }
+        } catch (error) {
+          console.error("Error checking username:", error);
+        } finally {
+          setIsCheckingUsername(false);
+        }
+      }
+    };
+
+    const debounceTimer = setTimeout(checkUsernameUniqueness, 500);
+    return () => clearTimeout(debounceTimer);
+  }, [watchedUsername, caseStudyId]);
 
   // Field arrays for dynamic lists
   const {
@@ -189,6 +241,12 @@ export default function CaseStudyEditor() {
 
   // Save the case study
   const handleSave = async (publish = false) => {
+    if (!isUsernameValid) {
+      setErrorMessage("Please choose a unique username before saving.");
+      showErrorToast("Please choose a unique username before saving.");
+      return;
+    }
+
     handleSubmit(async (data) => {
       setIsSaving(true);
       setErrorMessage("");
@@ -366,6 +424,39 @@ export default function CaseStudyEditor() {
         successMessage={successMessage}
         errorMessage={errorMessage}
       />
+
+      {/* Username input field - add before TabNavigation */}
+      <div className="mb-6 px-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Unique Username*
+        </label>
+        <div className="flex items-center">
+          <input
+            type="text"
+            value={watchedUsername || ""}
+            onChange={(e) =>
+              setValue("username", e.target.value, { shouldDirty: true })
+            }
+            className={`border rounded-md px-3 py-2 w-full max-w-md ${
+              !isUsernameValid ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="Choose a unique username (min 3 characters)"
+          />
+          {isCheckingUsername && <span className="ml-2">Checking...</span>}
+          {!isCheckingUsername && watchedUsername && (
+            <span
+              className={`ml-2 ${
+                isUsernameValid ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {isUsernameValid ? "✓ Available" : "✗ Already taken"}
+            </span>
+          )}
+        </div>
+        {errors.username && (
+          <p className="text-red-500 text-sm mt-1">{errors.username.message}</p>
+        )}
+      </div>
 
       <TabNavigation
         activeTab={activeTab}

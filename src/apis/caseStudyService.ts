@@ -20,6 +20,25 @@ import {
 import { db, storage } from "../lib/firebase";
 
 /**
+ * Check if a username is unique
+ * @param {string} username - The username to check
+ * @returns {Promise<boolean>} - True if username is unique, false otherwise
+ */
+export async function isUsernameUnique(username: string) {
+  try {
+    const q = query(
+      collection(db, "caseStudies"),
+      where("username", "==", username)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.empty; // True if no documents found with this username
+  } catch (error) {
+    console.error("Error checking username uniqueness:", error);
+    throw error;
+  }
+}
+
+/**
  * Get all case studies for a user
  * @param {string} userId - The user ID
  * @returns {Promise<Array>} - Array of case studies
@@ -28,7 +47,7 @@ export async function getUserCaseStudies(userId: string) {
   try {
     const q = query(
       collection(db, "caseStudies"),
-      where("userId", "==", userId),
+      where("userId", "==", userId)
     );
 
     const querySnapshot = await getDocs(q);
@@ -175,21 +194,10 @@ export async function deleteCaseStudyImage(imageUrl: string) {
  */
 export async function getPublicCaseStudies(username: string) {
   try {
-    // First get the user ID from the username
-    const usersRef = collection(db, "users");
-    const q = query(usersRef, where("username", "==", username));
-    const userSnapshot = await getDocs(q);
-
-    if (userSnapshot.empty) {
-      throw new Error("User not found");
-    }
-
-    const userId = userSnapshot.docs[0].id;
-
-    // Then get the case studies
+    // Query case studies directly by username
     const caseStudiesQuery = query(
       collection(db, "caseStudies"),
-      where("userId", "==", userId),
+      where("username", "==", username),
       where("isPublished", "==", true),
       orderBy("createdAt", "desc")
     );
