@@ -11,7 +11,6 @@ const navItems = [
     icon: FiPlusCircle,
   },
   { name: "Profile", path: "/dashboard/profile", icon: FiUser },
-  { name: "Theme", path: "/dashboard/theme", icon: TfiPalette },
 ];
 
 export default function DashboardSidebar({
