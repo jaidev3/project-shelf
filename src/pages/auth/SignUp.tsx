@@ -8,17 +8,11 @@ import { useAuth } from "../../hooks/useAuth";
 import { FirebaseError } from "firebase/app";
 
 // Define signup form schema with Zod
-const signupSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
+const signupSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -38,7 +32,6 @@ export default function SignUp() {
       name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
@@ -121,26 +114,10 @@ export default function SignUp() {
                 type={showPassword ? "text" : "password"}
                 errorMessage={errors.password?.message}
                 endContent={
-                  <Button onPress={() => setShowPassword((prev) => !prev)}>
-                    {showPassword ? "Hide" : "Show"}
-                  </Button>
-                }
-              />
-            )}
-          />
-
-          <Controller
-            name="confirmPassword"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                id="confirmPassword"
-                label="Confirm Password"
-                type={showPassword ? "text" : "password"}
-                errorMessage={errors.confirmPassword?.message}
-                endContent={
-                  <Button onPress={() => setShowPassword((prev) => !prev)}>
+                  <Button
+                    variant="light"
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  >
                     {showPassword ? "Hide" : "Show"}
                   </Button>
                 }
@@ -160,7 +137,7 @@ export default function SignUp() {
         </form>
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
           Already have an account?{" "}
-          <Link to="/auth/Login" className="text-primary-600 hover:underline">
+          <Link to="/login" className="text-primary-600 hover:underline">
             Sign in
           </Link>
         </p>

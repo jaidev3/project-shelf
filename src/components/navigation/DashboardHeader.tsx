@@ -18,12 +18,12 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
   };
 
   return (
-    <header className="bg-white shadow-sm">
+    <header className="bg-white shadow-sm dark:bg-neutral-900">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
         {/* Mobile menu button */}
         <button
           type="button"
-          className="md:hidden text-gray-500 hover:text-gray-900"
+          className="md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
           onClick={toggleSidebar}
         >
           <FiMenu className="h-6 w-6" />
@@ -54,7 +54,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
               <input
                 id="search"
                 name="search"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-gray-200 dark:placeholder-gray-400"
                 placeholder="Search projects..."
                 type="search"
               />
@@ -67,7 +67,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
           {/* Notifications */}
           <button
             type="button"
-            className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800 dark:text-gray-300 dark:hover:text-white dark:focus:ring-offset-neutral-900"
           >
             <span className="sr-only">View notifications</span>
             <FiBell className="h-6 w-6" />
@@ -78,7 +78,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
             <div>
               <button
                 type="button"
-                className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800"
                 id="user-menu-button"
                 aria-expanded="false"
                 aria-haspopup="true"
@@ -92,7 +92,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
                     alt="Profile"
                   />
                 ) : (
-                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white dark:bg-indigo-700">
                     {userProfile?.displayName?.[0] || user?.email?.[0] || ""}
                   </div>
                 )}
@@ -102,7 +102,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
             {/* Dropdown menu */}
             {dropdownOpen && (
               <div
-                className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+                className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-neutral-800 dark:ring-white/10"
                 role="menu"
                 aria-orientation="vertical"
                 aria-labelledby="user-menu-button"
@@ -110,7 +110,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
               >
                 <Link
                   to="/dashboard/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
                   role="menuitem"
                   tabIndex="-1"
                 >
@@ -118,7 +118,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
                 </Link>
                 <Link
                   to="/dashboard/theme"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
                   role="menuitem"
                   tabIndex="-1"
                 >
@@ -126,7 +126,7 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+                  className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
                   role="menuitem"
                   tabIndex="-1"
                 >

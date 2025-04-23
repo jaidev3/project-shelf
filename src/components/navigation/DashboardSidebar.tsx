@@ -24,14 +24,14 @@ export default function DashboardSidebar({ onClose }) {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="h-full flex flex-col bg-white shadow-sm">
+    <div className="h-full flex flex-col bg-white shadow-sm dark:bg-neutral-900">
       {/* Mobile close button */}
       {onClose && (
         <div className="flex items-center justify-between p-4 md:hidden">
           <div className="font-semibold text-xl">Project Shelf</div>
           <button
             type="button"
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
             onClick={onClose}
           >
             <span className="sr-only">Close sidebar</span>
@@ -43,7 +43,7 @@ export default function DashboardSidebar({ onClose }) {
       {/* User info */}
       <div className="px-4 py-6">
         <div className="flex items-center space-x-3">
-          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 overflow-hidden">
+          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 overflow-hidden dark:bg-neutral-800 dark:text-gray-300">
             {userProfile?.photoURL ? (
               <img
                 src={userProfile.photoURL}
@@ -55,10 +55,10 @@ export default function DashboardSidebar({ onClose }) {
             )}
           </div>
           <div>
-            <h2 className="text-lg font-medium text-gray-900 truncate max-w-[150px]">
+            <h2 className="text-lg font-medium text-gray-900 truncate max-w-[150px] dark:text-gray-100">
               {userProfile?.displayName || "Your Portfolio"}
             </h2>
-            <p className="text-sm text-gray-500 truncate max-w-[150px]">
+            <p className="text-sm text-gray-500 truncate max-w-[150px] dark:text-gray-400">
               @{userProfile?.username || "username"}
             </p>
           </div>
@@ -77,8 +77,8 @@ export default function DashboardSidebar({ onClose }) {
                 group flex items-center px-4 py-2 text-sm font-medium rounded-md
                 ${
                   isActive(item.path)
-                    ? "bg-indigo-50 text-indigo-700"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-neutral-800 dark:hover:text-white"
                 }
               `}
             >
@@ -99,10 +99,10 @@ export default function DashboardSidebar({ onClose }) {
       </nav>
 
       {/* View public portfolio link */}
-      <div className="px-3 py-4 border-t border-gray-200">
+      <div className="px-3 py-4 border-t border-gray-200 dark:border-neutral-700">
         <Link
           to={`/${userProfile?.username || "#"}`}
-          className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-gray-50"
+          className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-gray-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-neutral-800"
         >
           <span className="truncate">View Public Portfolio</span>
         </Link>

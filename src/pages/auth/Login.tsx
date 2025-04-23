@@ -71,50 +71,43 @@ export default function Login() {
           </div>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium mb-1">
-              Email
-            </label>
-            <Controller
-              name="email"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  errorMessage={errors.email?.message}
-                />
-              )}
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium mb-1"
-            >
-              Password
-            </label>
-            <Controller
-              name="password"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  errorMessage={errors.password?.message}
-                  endContent={
-                    <Button onPress={() => setShowPassword((prev) => !prev)}>
-                      {showPassword ? "Hide" : "Show"}
-                    </Button>
-                  }
-                />
-              )}
-            />
-          </div>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                id="email"
+                label="Email"
+                type="email"
+                autoComplete="email"
+                errorMessage={errors.email?.message}
+              />
+            )}
+          />
+
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => (
+              <Input
+                {...field}
+                id="password"
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                errorMessage={errors.password?.message}
+                endContent={
+                  <Button
+                    variant="light"
+                    onPress={() => setShowPassword((prev) => !prev)}
+                  >
+                    {showPassword ? "Hide" : "Show"}
+                  </Button>
+                }
+              />
+            )}
+          />
           <Button
             type="submit"
             color="primary"
@@ -128,7 +121,7 @@ export default function Login() {
         </form>
         <p className="mt-6 text-center text-sm text-neutral-600 dark:text-neutral-400">
           Don't have an account?{" "}
-          <Link to="/auth/SignUp" className="text-primary-600 hover:underline">
+          <Link to="/signup" className="text-primary-600 hover:underline">
             Sign up
           </Link>
         </p>
