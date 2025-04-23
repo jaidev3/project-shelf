@@ -3,70 +3,48 @@ import { useNavigate } from "react-router-dom";
 import DesignerPortfolio from "../../components/portfolios/DesignerPortfolio";
 import DeveloperPortfolio from "../../components/portfolios/DeveloperPortfolio";
 import WriterPortfolio from "../../components/portfolios/WriterPortfolio";
-
-// Types
-type PortfolioStyle = "designer" | "developer" | "writer";
-
-type Portfolio = {
-  id: string;
-  style: PortfolioStyle;
-  userData: {
-    name: string;
-    title: string;
-    bio: string;
-    avatar: string;
-    caseStudies: Array<{
-      id: string;
-      title: string;
-      description: string;
-      image: string;
-      tags: string[];
-    }>;
-  };
-  username: string;
-};
+import { getUserPortfolios } from "../../apis/portfolioService";
+import { getCurrentUser } from "../../apis/authService";
+import type { Portfolio } from "../../apis/portfolioService";
 
 export default function NewCaseStudy() {
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
-  const [portfolioStyle, setPortfolioStyle] =
-    useState<PortfolioStyle>("designer");
+  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
+  const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(
+    null
+  );
+  const [portfolioStyle, setPortfolioStyle] = useState<
+    "designer" | "developer" | "writer"
+  >("designer");
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Mock function to fetch portfolio data - replace with actual API call
+  // Fetch user's portfolios
   useEffect(() => {
-    const fetchPortfolio = async () => {
+    const fetchPortfolios = async () => {
       try {
-        // This would be an actual API call in a real implementation
-        // For now, we'll just simulate a delay and then set the portfolio to null
-        // to demonstrate the "no portfolio" state
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        const currentUser = getCurrentUser();
+        if (!currentUser) {
+          console.error("No user logged in");
+          setIsLoading(false);
+          return;
+        }
 
-        // Uncomment to test with a mock portfolio
-        /*
-        setPortfolio({
-          id: '123',
-          style: 'designer',
-          userData: {
-            name: 'Jane Designer',
-            title: 'UX/UI Designer',
-            bio: 'Passionate about creating beautiful and functional user experiences.',
-            avatar: 'https://via.placeholder.com/150',
-            caseStudies: []
-          },
-          username: 'janedesigner'
-        });
-        */
-
-        setPortfolio(null); // Set to null to demonstrate the "Create Portfolio" button state
+        const userPortfolios = await getUserPortfolios(currentUser.uid);
+        setPortfolios(userPortfolios);
+        console.log("portfolios", portfolios, currentUser.uid);
+        // Select the first portfolio by default if available
+        if (userPortfolios.length > 0) {
+          setSelectedPortfolio(userPortfolios[0]);
+          setPortfolioStyle(userPortfolios[0].style);
+        }
       } catch (error) {
-        console.error("Error fetching portfolio:", error);
+        console.error("Error fetching portfolios:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPortfolio();
+    fetchPortfolios();
   }, []);
 
   const handleCreatePortfolio = () => {
@@ -74,8 +52,16 @@ export default function NewCaseStudy() {
     navigate("/dashboard/case-study/create");
   };
 
+  const handlePortfolioSelect = (portfolioId: string) => {
+    const portfolio = portfolios.find((p) => p.id === portfolioId);
+    if (portfolio) {
+      setSelectedPortfolio(portfolio);
+      setPortfolioStyle(portfolio.style);
+    }
+  };
+
   const handleStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPortfolioStyle(e.target.value as PortfolioStyle);
+    setPortfolioStyle(e.target.value as "designer" | "developer" | "writer");
   };
 
   const handleSaveDraft = () => {
@@ -107,28 +93,28 @@ export default function NewCaseStudy() {
 
   // Render portfolio based on style
   const renderPortfolio = () => {
-    if (!portfolio) return null;
+    if (!selectedPortfolio) return null;
 
     switch (portfolioStyle) {
       case "designer":
         return (
           <DesignerPortfolio
-            userData={portfolio.userData}
-            username={portfolio.username}
+            userData={selectedPortfolio.userData}
+            username={selectedPortfolio.username}
           />
         );
       case "developer":
         return (
           <DeveloperPortfolio
-            userData={portfolio.userData}
-            username={portfolio.username}
+            userData={selectedPortfolio.userData}
+            username={selectedPortfolio.username}
           />
         );
       case "writer":
         return (
           <WriterPortfolio
-            userData={portfolio.userData}
-            username={portfolio.username}
+            userData={selectedPortfolio.userData}
+            username={selectedPortfolio.username}
           />
         );
       default:
@@ -148,8 +134,30 @@ export default function NewCaseStudy() {
           Portfolio
         </h2>
 
-        {portfolio ? (
+        {portfolios.length > 0 ? (
           <div>
+            {/* Portfolio Selection */}
+            <div className="mb-4">
+              <label
+                htmlFor="portfolioSelect"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Select Portfolio
+              </label>
+              <select
+                id="portfolioSelect"
+                value={selectedPortfolio?.id || ""}
+                onChange={(e) => handlePortfolioSelect(e.target.value)}
+                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-4"
+              >
+                {portfolios.map((portfolio) => (
+                  <option key={portfolio.id} value={portfolio.id}>
+                    {portfolio.userData.name} - {portfolio.style}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Portfolio Style Dropdown */}
             <div className="mb-4">
               <label
@@ -162,7 +170,7 @@ export default function NewCaseStudy() {
                 id="portfolioStyle"
                 value={portfolioStyle}
                 onChange={handleStyleChange}
-                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="designer">Designer</option>
                 <option value="developer">Developer</option>
