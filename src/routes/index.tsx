@@ -16,7 +16,6 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import CaseStudyEditor from "../pages/dashboard/CaseStudyEditor";
 import ProfileSettings from "../pages/dashboard/ProfileSettings";
 import ThemeSettings from "../pages/dashboard/ThemeSettings";
-import Analytics from "../pages/dashboard/Analytics";
 
 // Public pages
 import Home from "../pages/public/Home";
@@ -64,7 +63,6 @@ export const AppRoutes = () => {
         <Route path="case-study/new" element={<CaseStudyEditor />} />
         <Route path="profile" element={<ProfileSettings />} />
         <Route path="theme" element={<ThemeSettings />} />
-        <Route path="analytics" element={<Analytics />} />
       </Route>
 
       {/* 404 route */}

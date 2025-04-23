@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiPlusCircle, FiUser, FiTrendingUp } from "react-icons/fi";
+import { FiHome, FiPlusCircle, FiUser } from "react-icons/fi";
 import { TfiPalette } from "react-icons/tfi";
 
 const navItems = [
@@ -12,7 +12,6 @@ const navItems = [
   },
   { name: "Profile", path: "/dashboard/profile", icon: FiUser },
   { name: "Theme", path: "/dashboard/theme", icon: TfiPalette },
-  { name: "Analytics", path: "/dashboard/analytics", icon: FiTrendingUp },
 ];
 
 export default function DashboardSidebar({
