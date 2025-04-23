@@ -1,13 +1,27 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useState, useEffect, ChangeEvent } from "react";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../lib/firebase";
 import { FiUpload, FiSave, FiCheck } from "react-icons/fi";
 import { Button, Input, Textarea } from "@heroui/react";
 import { UserProfile } from "@/apis/authService";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@heroui/react";
+import { useAuth as useAuthHook } from "../../hooks/useAuth";
+
+// Define profile form schema with Zod
+const profileSchema = z.object({
+  displayName: z.string().min(1, "Display name is required"),
+  profession: z.string().optional(),
+  description: z.string().optional(),
+  photoURL: z.string().optional(),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfileSettings() {
-  const { currentUser, updateUserProfile } = useAuth();
+  const { currentUser, updateUserProfile, getUserProfile } = useAuthHook();
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -15,22 +29,73 @@ export default function ProfileSettings() {
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
     null
   );
-  const [formData, setFormData] = useState<UserProfile>({
-    displayName: "",
-    profession: "",
-    description: "",
-    photoURL: "",
+  const [loading, setLoading] = useState(true);
+
+  // Setup React Hook Form
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      displayName: "",
+      profession: "",
+      description: "",
+      photoURL: "",
+    },
   });
 
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  // Fetch user profile data and set form values
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!currentUser) return;
+
+      setLoading(true);
+      setError("");
+
+      try {
+        // Get user profile from Firestore
+        const userProfile = await getUserProfile(currentUser.uid);
+
+        // Reset form with user profile data
+        reset({
+          displayName: userProfile.displayName || currentUser.displayName || "",
+          photoURL: userProfile.photoURL || currentUser.photoURL || "",
+          profession: userProfile.profession || "",
+          description: userProfile.description || "",
+        });
+
+        // Set profile image preview
+        if (userProfile.photoURL || currentUser.photoURL) {
+          setProfileImagePreview(
+            userProfile.photoURL || currentUser.photoURL || null
+          );
+        }
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+        setError("Failed to load user profile data");
+
+        // Fallback to basic user info from auth
+        reset({
+          displayName: currentUser.displayName || "",
+          photoURL: currentUser.photoURL || "",
+          profession: "",
+          description: "",
+        });
+
+        if (currentUser.photoURL) {
+          setProfileImagePreview(currentUser.photoURL);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [currentUser, getUserProfile, reset]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -62,9 +127,7 @@ export default function ProfileSettings() {
     }
   };
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
+  const onSubmit = async (data: ProfileFormValues) => {
     if (!currentUser) return;
 
     setSaving(true);
@@ -72,7 +135,7 @@ export default function ProfileSettings() {
     setSuccess(false);
 
     try {
-      let updatedData: UserProfile = { ...formData };
+      let updatedData: UserProfile = { ...data };
 
       // If there's a new profile image, upload it and get the URL
       if (profileImage) {
@@ -116,94 +179,115 @@ export default function ProfileSettings() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Image Section */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="relative">
-              <div className="h-24 w-24 rounded-full bg-gray-200 overflow-hidden dark:bg-neutral-700">
-                {profileImagePreview || formData.photoURL ? (
-                  <img
-                    src={profileImagePreview || formData.photoURL}
-                    alt="Profile"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center text-gray-400">
-                    <span className="text-3xl">?</span>
-                  </div>
-                )}
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {/* Profile Image Section */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="relative">
+                <div className="h-24 w-24 rounded-full bg-gray-200 overflow-hidden dark:bg-neutral-700">
+                  {profileImagePreview ? (
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center text-gray-400">
+                      <span className="text-3xl">?</span>
+                    </div>
+                  )}
+                </div>
+                <label
+                  htmlFor="profile-image"
+                  className="absolute bottom-0 right-0 bg-indigo-500 text-white p-1 rounded-full cursor-pointer hover:bg-indigo-600 transition-colors"
+                >
+                  <FiUpload size={14} />
+                </label>
+                <input
+                  type="file"
+                  id="profile-image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
               </div>
-              <label
-                htmlFor="profile-image"
-                className="absolute bottom-0 right-0 bg-indigo-500 text-white p-1 rounded-full cursor-pointer hover:bg-indigo-600 transition-colors"
-              >
-                <FiUpload size={14} />
-              </label>
-              <input
-                type="file"
-                id="profile-image"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
+
+              <div className="flex-1">
+                <p className="text-sm text-gray-500 mb-1 dark:text-gray-400">
+                  Upload a new profile picture
+                </p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">
+                  Recommended size: 512x512 pixels (JPG, PNG, GIF)
+                </p>
+              </div>
+            </div>
+
+            {/* Basic Info Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Controller
+                name="displayName"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    label="Display Name"
+                    {...field}
+                    placeholder="Your name"
+                    variant="bordered"
+                    isRequired
+                    errorMessage={errors.displayName?.message}
+                  />
+                )}
               />
             </div>
 
-            <div className="flex-1">
-              <p className="text-sm text-gray-500 mb-1 dark:text-gray-400">
-                Upload a new profile picture
-              </p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                Recommended size: 512x512 pixels (JPG, PNG, GIF)
-              </p>
-            </div>
-          </div>
-
-          {/* Basic Info Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Display Name"
-              name="displayName"
-              value={formData.displayName}
-              onChange={handleInputChange}
-              placeholder="Your name"
-              variant="bordered"
-              isRequired
+            <Controller
+              name="profession"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  label="Profession"
+                  {...field}
+                  placeholder="e.g. UX Designer, Full Stack Developer"
+                  variant="bordered"
+                  errorMessage={errors.profession?.message}
+                />
+              )}
             />
-          </div>
 
-          <Input
-            label="Profession"
-            name="profession"
-            value={formData.profession}
-            onChange={handleInputChange}
-            placeholder="e.g. UX Designer, Full Stack Developer"
-            variant="bordered"
-          />
+            <Controller
+              name="description"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  label="Bio"
+                  {...field}
+                  placeholder="Tell us about yourself..."
+                  variant="bordered"
+                  minRows={3}
+                  maxRows={6}
+                  errorMessage={errors.description?.message}
+                />
+              )}
+            />
 
-          <Textarea
-            label="Bio"
-            name="description"
-            value={formData.description}
-            onChange={handleInputChange}
-            placeholder="Tell us about yourself..."
-            variant="bordered"
-            minRows={3}
-            maxRows={6}
-          />
-
-          <div className="pt-4">
-            <Button
-              type="submit"
-              color="primary"
-              startContent={<FiSave />}
-              isLoading={saving}
-              isDisabled={saving}
-              className="w-full sm:w-auto"
-            >
-              {saving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        </form>
+            <div className="pt-4">
+              <Button
+                type="submit"
+                color="primary"
+                startContent={<FiSave />}
+                isLoading={saving}
+                isDisabled={saving}
+                className="w-full sm:w-auto"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

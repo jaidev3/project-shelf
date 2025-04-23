@@ -7,6 +7,7 @@ import {
   subscribeToAuthChanges,
   updateUserProfile,
   UserProfile,
+  getUserProfile,
 } from "../apis/authService";
 
 export type { UserProfile } from "../apis/authService";
@@ -14,10 +15,15 @@ export type { UserProfile } from "../apis/authService";
 export interface UseAuthReturn {
   currentUser: User | null;
   loading: boolean;
-  signup: (email: string, password: string) => Promise<UserCredential>;
+  signup: (data: {
+    username: string;
+    email: string;
+    password: string;
+  }) => Promise<UserCredential>;
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
   updateUserProfile: (uid: string, data: Partial<UserProfile>) => Promise<void>;
+  getUserProfile: (uid: string) => Promise<UserProfile>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -40,5 +46,6 @@ export function useAuth(): UseAuthReturn {
     login: loginUser,
     logout: logoutUser,
     updateUserProfile,
+    getUserProfile,
   };
 }

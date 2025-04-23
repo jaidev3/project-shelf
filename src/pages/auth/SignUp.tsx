@@ -10,7 +10,7 @@ import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
 // Define signup form schema with Zod
 const signupSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
+  username: z.string().min(2, "Username must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -30,7 +30,7 @@ export default function SignUp() {
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: "",
+      username: "",
       email: "",
       password: "",
     },
@@ -39,7 +39,11 @@ export default function SignUp() {
   const onSubmit = async (data: SignupFormValues) => {
     try {
       setSignupError(null);
-      await signup(data.email, data.password);
+      await signup({
+        email: data.email,
+        password: data.password,
+        username: data.username,
+      });
       showSuccessToast("Account created successfully!");
       navigate("/dashboard"); // Redirect to dashboard after successful signup
     } catch (error) {
@@ -75,15 +79,15 @@ export default function SignUp() {
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <Controller
-            name="name"
+            name="username"
             control={control}
             render={({ field }) => (
               <Input
                 {...field}
-                id="name"
+                id="username"
                 type="text"
-                label="Name"
-                errorMessage={errors.name?.message}
+                label="Username"
+                errorMessage={errors.username?.message}
               />
             )}
           />

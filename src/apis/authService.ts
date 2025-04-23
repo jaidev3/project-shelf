@@ -20,15 +20,39 @@ export interface UserProfile {
 
 /**
  * Register a new user with email and password
+ * @param {string} username - User username
  * @param {string} email - User email
  * @param {string} password - User password
  * @returns {Promise<UserCredential>} - Firebase user credential
  */
-export async function registerUser(
-  email: string,
-  password: string
-): Promise<UserCredential> {
-  return createUserWithEmailAndPassword(auth, email, password);
+export async function registerUser(data: {
+  username: string;
+  email: string;
+  password: string;
+}): Promise<UserCredential> {
+  // create user
+  const userCredential = await createUserWithEmailAndPassword(
+    auth,
+    data.email,
+    data.password
+  );
+
+  // update userProfile
+  updateProfile(userCredential.user, {
+    displayName: data.username,
+  });
+
+  const userDocRef = doc(collection(db, "users"), userCredential.user.uid);
+
+  await setDoc(userDocRef, {
+    email: data.email,
+    photoURL: "",
+    displayName: data.username, // Use the provided displayName
+    profession: "",
+    description: "",
+  });
+
+  return userCredential;
 }
 
 /**
@@ -59,6 +83,22 @@ export async function logoutUser(): Promise<void> {
  */
 export function subscribeToAuthChanges(callback: (user: User | null) => void) {
   return onAuthStateChanged(auth, callback);
+}
+
+/**
+ * Get user profile from Firestore
+ * @param {string} uid - User ID
+ * @returns {Promise<UserProfile>} - User profile
+ */
+export async function getUserProfile(uid: string): Promise<UserProfile> {
+  const userDocRef = doc(collection(db, "users"), uid);
+  const docSnap = await getDoc(userDocRef);
+
+  if (docSnap.exists()) {
+    return docSnap.data() as UserProfile;
+  } else {
+    throw new Error("User profile not found");
+  }
 }
 
 /**
