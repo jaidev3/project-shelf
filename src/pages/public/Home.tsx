@@ -47,8 +47,106 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Portfolio Templates Showcase */}
       <section className="py-16 bg-white dark:bg-neutral-900">
+        <div className="container mx-auto px-4 md:px-8">
+          <h2 className="text-3xl font-bold text-center mb-12 dark:text-white">
+            Professional Portfolio Templates for Every Discipline
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8 lg:gap-12">
+            {/* Designer Portfolio */}
+            <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+              <div className="h-56 bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/24.jpg"
+                    alt="Designer"
+                    className="w-20 h-20 rounded-full border-4 border-white"
+                  />
+                </div>
+                <h3 className="text-white text-2xl font-bold z-10 mt-20">
+                  Design Portfolio
+                </h3>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Perfect for UX/UI designers, graphic designers, and other
+                  visual creatives. Showcase your work with eye-catching visuals
+                  and demonstrate your design process.
+                </p>
+                <Link
+                  to="/alice"
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium px-5 py-2 rounded-lg hover:opacity-90 transition-opacity inline-block"
+                >
+                  View Example
+                </Link>
+              </div>
+            </div>
+
+            {/* Developer Portfolio */}
+            <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+              <div className="h-56 bg-gray-900 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                  <img
+                    src="https://randomuser.me/api/portraits/men/44.jpg"
+                    alt="Developer"
+                    className="w-20 h-20 rounded-full border-4 border-white"
+                  />
+                </div>
+                <h3 className="text-green-400 text-2xl font-bold font-mono z-10 mt-20">
+                  &lt;Dev Portfolio /&gt;
+                </h3>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Designed for developers and engineers to showcase projects
+                  with code snippets, technical details, and demonstrate
+                  problem-solving abilities.
+                </p>
+                <Link
+                  to="/bob"
+                  className="bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-block"
+                >
+                  View Example
+                </Link>
+              </div>
+            </div>
+
+            {/* Writer Portfolio */}
+            <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg overflow-hidden shadow-lg transition-transform hover:scale-105">
+              <div className="h-56 bg-amber-50 flex items-center justify-center relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/5">
+                  <img
+                    src="https://randomuser.me/api/portraits/women/67.jpg"
+                    alt="Writer"
+                    className="w-20 h-20 rounded-full border-4 border-amber-800"
+                  />
+                </div>
+                <h3 className="text-gray-800 text-2xl font-bold font-serif z-10 mt-20">
+                  Writer's Portfolio
+                </h3>
+              </div>
+              <div className="p-6">
+                <p className="text-gray-600 dark:text-gray-300 mb-6">
+                  Ideal for content creators, copywriters, and authors to
+                  highlight writing samples, demonstrate versatility, and
+                  showcase content strategy expertise.
+                </p>
+                <Link
+                  to="/carol"
+                  className="bg-amber-800 text-white font-medium px-5 py-2 rounded-lg hover:bg-amber-700 transition-colors inline-block"
+                >
+                  View Example
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 bg-gray-50 dark:bg-neutral-800">
         <div className="container mx-auto px-4 md:px-8">
           <h2 className="text-3xl font-bold text-center mb-12 dark:text-white">
             Why Choose Project Shelf?
@@ -56,7 +154,7 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-neutral-700 p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +181,7 @@ export default function Home() {
             </div>
 
             {/* Feature 2 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-neutral-700 p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +208,7 @@ export default function Home() {
             </div>
 
             {/* Feature 3 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
+            <div className="bg-white dark:bg-neutral-700 p-6 rounded-lg shadow-sm">
               <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -128,244 +226,11 @@ export default function Home() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                Customizable Themes
+                Professional Templates
               </h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Choose from multiple pre-built themes and preview changes in
-                real-time to match your personal brand.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-indigo-600 dark:text-indigo-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                Analytics Dashboard
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Track portfolio traffic, engagement metrics, and see which case
-                studies are getting the most attention.
-              </p>
-            </div>
-
-            {/* Feature 5 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-indigo-600 dark:text-indigo-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                Mobile Responsive
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Your portfolio looks great on all devices, from desktop to
-                tablet to mobile phone.
-              </p>
-            </div>
-
-            {/* Feature 6 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg shadow-sm">
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center mb-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-6 w-6 text-indigo-600 dark:text-indigo-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                Client Testimonials
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                Showcase feedback from clients and collaborators to build trust
-                with potential employers.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Showcase Examples */}
-      <section className="py-16 bg-gray-50 dark:bg-neutral-800">
-        <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12 dark:text-white">
-            Showcase Your Work Like a Pro
-          </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Example Portfolio 1 */}
-            <div className="bg-white dark:bg-neutral-700 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gray-200 dark:bg-gray-600">
-                <img
-                  src="https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                  alt="UX Designer Portfolio"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                  Sarah J. - UX Designer
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Portfolio showcasing user-centered design projects with
-                  detailed case studies and research insights.
-                </p>
-                <Link
-                  to="/alice"
-                  className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
-                >
-                  View example →
-                </Link>
-              </div>
-            </div>
-
-            {/* Example Portfolio 2 */}
-            <div className="bg-white dark:bg-neutral-700 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gray-200 dark:bg-gray-600">
-                <img
-                  src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                  alt="Web Developer Portfolio"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                  Mark T. - Web Developer
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Full-stack developer featuring interactive web applications
-                  with technical breakdown and GitHub integrations.
-                </p>
-                <Link
-                  to="/bob"
-                  className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
-                >
-                  View example →
-                </Link>
-              </div>
-            </div>
-
-            {/* Example Portfolio 3 */}
-            <div className="bg-white dark:bg-neutral-700 rounded-lg overflow-hidden shadow-md">
-              <div className="h-48 bg-gray-200 dark:bg-gray-600">
-                <img
-                  src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80"
-                  alt="Content Writer Portfolio"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-2 dark:text-white">
-                  Emily R. - Content Writer
-                </h3>
-                <p className="text-gray-600 dark:text-gray-300 mb-4">
-                  Collection of writing samples with campaign results, audience
-                  metrics, and brand voice examples.
-                </p>
-                <Link
-                  to="/carol"
-                  className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline"
-                >
-                  View example →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-16 bg-white dark:bg-neutral-900">
-        <div className="container mx-auto px-4 md:px-8">
-          <h2 className="text-3xl font-bold text-center mb-12 dark:text-white">
-            What Our Users Say
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Testimonial 1 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden mr-4">
-                  <img
-                    src="https://randomuser.me/api/portraits/women/43.jpg"
-                    alt="User testimonial"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-semibold dark:text-white">
-                    Jessica Williams
-                  </h4>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Freelance Designer
-                  </p>
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 italic">
-                "Project Shelf has completely transformed how I showcase my work
-                to clients. The case study templates made it easy to highlight
-                my process, and I've received so many compliments on the
-                professional look."
-              </p>
-            </div>
-
-            {/* Testimonial 2 */}
-            <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden mr-4">
-                  <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="User testimonial"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="font-semibold dark:text-white">Alex Chen</h4>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    UI Developer
-                  </p>
-                </div>
-              </div>
-              <p className="text-gray-600 dark:text-gray-300 italic">
-                "The analytics dashboard has been a game-changer for me. I can
-                see which case studies are getting the most attention and
-                optimize my portfolio based on real data. I landed two major
-                contracts since using Project Shelf!"
+                Choose specialized templates designed for designers, developers,
+                and writers that showcase your specific skills.
               </p>
             </div>
           </div>
@@ -373,30 +238,21 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-indigo-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
         <div className="container mx-auto px-4 md:px-8 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            Ready to Showcase Your Work?
+            Ready to Build Your Portfolio?
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join thousands of creatives who use Project Shelf to highlight their
-            skills and win more clients.
+          <p className="text-lg mb-8 max-w-2xl mx-auto">
+            Join thousands of professionals who use Project Shelf to showcase
+            their work and land their dream opportunities.
           </p>
-          {currentUser ? (
-            <Link
-              to="/dashboard"
-              className="bg-white text-indigo-600 font-semibold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors inline-block"
-            >
-              Go to Your Dashboard
-            </Link>
-          ) : (
-            <Link
-              to="/signup"
-              className="bg-white text-indigo-600 font-semibold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors inline-block"
-            >
-              Create Your Portfolio For Free
-            </Link>
-          )}
+          <Link
+            to="/signup"
+            className="bg-white text-indigo-600 font-semibold px-8 py-3 rounded-lg hover:bg-indigo-50 transition-colors"
+          >
+            Get Started For Free
+          </Link>
         </div>
       </section>
     </div>

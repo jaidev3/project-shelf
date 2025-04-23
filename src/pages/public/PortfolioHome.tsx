@@ -1,8 +1,26 @@
 import React from "react";
 import { useParams, Link } from "react-router-dom";
+import DesignerPortfolio from "../../components/portfolios/DesignerPortfolio";
+import DeveloperPortfolio from "../../components/portfolios/DeveloperPortfolio";
+import WriterPortfolio from "../../components/portfolios/WriterPortfolio";
+
+// Updated type definition for users
+type User = {
+  name: string;
+  title: string;
+  bio: string;
+  avatar: string;
+  caseStudies: Array<{
+    id: string;
+    title: string;
+    description: string;
+    image: string;
+    tags: string[];
+  }>;
+};
 
 // Dummy data for portfolios
-const DUMMY_USERS = {
+const DUMMY_USERS: Record<string, User> = {
   alice: {
     name: "Alice Cooper",
     title: "UX Designer & Researcher",
@@ -100,10 +118,10 @@ const DUMMY_USERS = {
 };
 
 export default function PortfolioHome() {
-  const { username } = useParams();
+  const { username } = useParams<{ username: string }>();
 
   // If username doesn't exist in our dummy data, show a not found message
-  const userData = username && DUMMY_USERS[username.toLowerCase()];
+  const userData = username ? DUMMY_USERS[username.toLowerCase()] : undefined;
 
   if (!userData) {
     return (
@@ -125,6 +143,33 @@ export default function PortfolioHome() {
     );
   }
 
+  // Determine which portfolio component to use based on user's title/profession
+  const userProfession = userData.title.toLowerCase();
+  const isDesigner =
+    userProfession.includes("design") ||
+    userProfession.includes("ux") ||
+    userProfession.includes("ui");
+  const isDeveloper =
+    userProfession.includes("develop") ||
+    userProfession.includes("engineer") ||
+    userProfession.includes("code") ||
+    userProfession.includes("stack");
+  const isWriter =
+    userProfession.includes("writ") ||
+    userProfession.includes("content") ||
+    userProfession.includes("copy") ||
+    userProfession.includes("editor");
+
+  // Return the appropriate portfolio component
+  if (isDesigner) {
+    return <DesignerPortfolio userData={userData} username={username || ""} />;
+  } else if (isDeveloper) {
+    return <DeveloperPortfolio userData={userData} username={username || ""} />;
+  } else if (isWriter) {
+    return <WriterPortfolio userData={userData} username={username || ""} />;
+  }
+
+  // Fallback to generic portfolio layout
   return (
     <div className="portfolio-home-page">
       {/* Header section with user info */}
