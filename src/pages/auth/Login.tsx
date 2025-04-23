@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Button, Input } from "@heroui/react";
 import { useAuth } from "../../hooks/useAuth";
 import { FirebaseError } from "firebase/app";
+import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
 // Define login form schema with Zod
 const loginSchema = z.object({
@@ -37,25 +38,27 @@ export default function Login() {
     try {
       setLoginError(null);
       await login(data.email, data.password);
+      showSuccessToast("Logged in successfully!");
       navigate("/dashboard"); // Redirect to dashboard after successful login
     } catch (error) {
+      let errorMsg = "An unexpected error occurred";
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case "auth/invalid-credential":
-            setLoginError("Invalid email or password");
+            errorMsg = "Invalid email or password";
             break;
           case "auth/user-not-found":
-            setLoginError("No account found with this email");
+            errorMsg = "No account found with this email";
             break;
           case "auth/wrong-password":
-            setLoginError("Incorrect password");
+            errorMsg = "Incorrect password";
             break;
           default:
-            setLoginError("An error occurred during login");
+            errorMsg = "An error occurred during login";
         }
-      } else {
-        setLoginError("An unexpected error occurred");
       }
+      setLoginError(errorMsg);
+      showErrorToast(errorMsg);
     }
   };
 
@@ -65,11 +68,6 @@ export default function Login() {
         <h2 className="text-2xl font-bold mb-6 text-center">
           Sign in to your account
         </h2>
-        {loginError && (
-          <div className="mb-4 p-3 bg-danger-50 text-danger-600 rounded">
-            {loginError}
-          </div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <Controller
             name="email"

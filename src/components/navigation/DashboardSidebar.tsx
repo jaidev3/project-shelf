@@ -3,8 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { FiHome, FiPlusCircle, FiUser, FiTrendingUp } from "react-icons/fi";
 import { TfiPalette } from "react-icons/tfi";
 
-import { useAuth } from "../../contexts/AuthContext";
-
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: FiHome },
   {
@@ -17,11 +15,16 @@ const navItems = [
   { name: "Analytics", path: "/dashboard/analytics", icon: FiTrendingUp },
 ];
 
-export default function DashboardSidebar({ onClose }) {
+export default function DashboardSidebar({
+  onClose,
+  userProfile,
+}: {
+  onClose?: () => void;
+  userProfile: any;
+}) {
   const location = useLocation();
-  const { userProfile } = useAuth();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <div className="h-full flex flex-col bg-white shadow-sm dark:bg-neutral-900">

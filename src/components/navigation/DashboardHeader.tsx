@@ -1,16 +1,34 @@
-import React, { useState } from "react";
+import {
+  Button,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  Input,
+  Avatar,
+} from "@heroui/react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiMenu, FiBell, FiUser, FiLogOut, FiSettings } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
+import { User } from "firebase/auth";
+import { showSuccessToast } from "../../utils/toast";
 
-export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const navigate = useNavigate();
+export default function DashboardHeader({
+  toggleSidebar,
+  user,
+  userProfile,
+}: {
+  toggleSidebar: () => void;
+  user: User | null;
+  userProfile: any; // TODO: Replace with proper UserProfile type
+}) {
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     try {
       await logout();
+      showSuccessToast("Logged out successfully!");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed", error);
@@ -21,22 +39,25 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
     <header className="bg-white shadow-sm dark:bg-neutral-900">
       <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
         {/* Mobile menu button */}
-        <button
-          type="button"
+        <Button
+          isIconOnly
+          variant="light"
           className="md:hidden text-gray-500 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
-          onClick={toggleSidebar}
+          onPress={toggleSidebar}
         >
           <FiMenu className="h-6 w-6" />
-        </button>
+        </Button>
 
         {/* Search bar */}
         <div className="flex-1 min-w-0 md:ml-4">
           <div className="max-w-2xl mx-auto">
-            <label htmlFor="search" className="sr-only">
-              Search
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Input
+              id="search"
+              name="search"
+              placeholder="Search projects..."
+              variant="flat"
+              size="md"
+              startContent={
                 <svg
                   className="h-5 w-5 text-gray-400"
                   xmlns="http://www.w3.org/2000/svg"
@@ -50,90 +71,78 @@ export default function DashboardHeader({ toggleSidebar, user, userProfile }) {
                     clipRule="evenodd"
                   />
                 </svg>
-              </div>
-              <input
-                id="search"
-                name="search"
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-gray-200 dark:placeholder-gray-400"
-                placeholder="Search projects..."
-                type="search"
-              />
-            </div>
+              }
+              className="dark:bg-neutral-800 dark:border-neutral-700 dark:text-gray-200 dark:placeholder-gray-400"
+            />
           </div>
         </div>
 
         {/* Right section */}
         <div className="ml-4 flex items-center md:ml-6">
           {/* Notifications */}
-          <button
-            type="button"
+          <Button
+            isIconOnly
+            variant="light"
             className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800 dark:text-gray-300 dark:hover:text-white dark:focus:ring-offset-neutral-900"
           >
             <span className="sr-only">View notifications</span>
             <FiBell className="h-6 w-6" />
-          </button>
+          </Button>
 
           {/* Profile dropdown */}
           <div className="ml-3 relative">
-            <div>
-              <button
-                type="button"
-                className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800"
-                id="user-menu-button"
-                aria-expanded="false"
-                aria-haspopup="true"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+            <Dropdown>
+              <DropdownTrigger>
+                <Button
+                  isIconOnly
+                  variant="light"
+                  className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800"
+                  id="user-menu-button"
+                >
+                  {userProfile?.photoURL ? (
+                    <Avatar
+                      src={userProfile.photoURL}
+                      alt="Profile"
+                      radius="full"
+                      size="md"
+                      className="h-8 w-8"
+                    />
+                  ) : (
+                    <Avatar
+                      name={userProfile?.displayName || user?.email || ""}
+                      radius="full"
+                      size="md"
+                      className="h-8 w-8 bg-indigo-500 text-white dark:bg-indigo-700"
+                    >
+                      {userProfile?.displayName?.[0] || user?.email?.[0] || ""}
+                    </Avatar>
+                  )}
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                aria-label="User menu"
+                onAction={(key) => {
+                  if (key === "profile") {
+                    navigate("/dashboard/profile");
+                  } else if (key === "logout") {
+                    handleLogout();
+                  }
+                }}
               >
-                <span className="sr-only">Open user menu</span>
-                {userProfile?.photoURL ? (
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src={userProfile.photoURL}
-                    alt="Profile"
-                  />
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center text-white dark:bg-indigo-700">
-                    {userProfile?.displayName?.[0] || user?.email?.[0] || ""}
-                  </div>
-                )}
-              </button>
-            </div>
-
-            {/* Dropdown menu */}
-            {dropdownOpen && (
-              <div
-                className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-neutral-800 dark:ring-white/10"
-                role="menu"
-                aria-orientation="vertical"
-                aria-labelledby="user-menu-button"
-                tabIndex="-1"
-              >
-                <Link
-                  to="/dashboard/profile"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
-                  role="menuitem"
-                  tabIndex="-1"
+                <DropdownItem
+                  key="profile"
+                  startContent={<FiUser className="mr-2" />}
                 >
-                  <FiUser className="mr-2" /> Profile
-                </Link>
-                <Link
-                  to="/dashboard/theme"
-                  className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
-                  role="menuitem"
-                  tabIndex="-1"
+                  Profile
+                </DropdownItem>
+                <DropdownItem
+                  key="logout"
+                  startContent={<FiLogOut className="mr-2" />}
                 >
-                  <FiSettings className="mr-2" /> Theme
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center dark:text-gray-200 dark:hover:bg-neutral-700"
-                  role="menuitem"
-                  tabIndex="-1"
-                >
-                  <FiLogOut className="mr-2" /> Sign out
-                </button>
-              </div>
-            )}
+                  Sign out
+                </DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
           </div>
         </div>
       </div>

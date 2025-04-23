@@ -6,6 +6,7 @@ import { z } from "zod";
 import { Button, Input } from "@heroui/react";
 import { useAuth } from "../../hooks/useAuth";
 import { FirebaseError } from "firebase/app";
+import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
 // Define signup form schema with Zod
 const signupSchema = z.object({
@@ -39,28 +40,30 @@ export default function SignUp() {
     try {
       setSignupError(null);
       await signup(data.email, data.password);
+      showSuccessToast("Account created successfully!");
       navigate("/dashboard"); // Redirect to dashboard after successful signup
     } catch (error) {
+      let errorMsg = "An unexpected error occurred";
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case "auth/email-already-in-use":
-            setSignupError("Email is already registered");
+            errorMsg = "Email is already registered";
             break;
           case "auth/invalid-email":
-            setSignupError("Invalid email address");
+            errorMsg = "Invalid email address";
             break;
           case "auth/operation-not-allowed":
-            setSignupError("Sign up is currently disabled");
+            errorMsg = "Sign up is currently disabled";
             break;
           case "auth/weak-password":
-            setSignupError("Password is too weak");
+            errorMsg = "Password is too weak";
             break;
           default:
-            setSignupError("An error occurred during sign up");
+            errorMsg = "An error occurred during sign up";
         }
-      } else {
-        setSignupError("An unexpected error occurred");
       }
+      setSignupError(errorMsg);
+      showErrorToast(errorMsg);
     }
   };
 
@@ -70,11 +73,6 @@ export default function SignUp() {
         <h2 className="text-2xl font-bold mb-6 text-center">
           Create your account
         </h2>
-        {signupError && (
-          <div className="mb-4 p-3 bg-danger-50 text-danger-600 rounded">
-            {signupError}
-          </div>
-        )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <Controller
             name="name"

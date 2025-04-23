@@ -7,7 +7,10 @@ import {
   User,
   UserCredential,
 } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { auth, db } from "../lib/firebase";
+import { doc } from "firebase/firestore";
+import { collection } from "firebase/firestore";
+import { getDoc } from "firebase/firestore";
 
 export interface UseAuthReturn {
   currentUser: User | null;
@@ -15,6 +18,7 @@ export interface UseAuthReturn {
   signup: (email: string, password: string) => Promise<UserCredential>;
   login: (email: string, password: string) => Promise<UserCredential>;
   logout: () => Promise<void>;
+  getUserProfile: (uid: string) => Promise<any>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -42,11 +46,23 @@ export function useAuth(): UseAuthReturn {
     return signOut(auth);
   };
 
+  const getUserProfile = async (uid: string) => {
+    const docRef = doc(collection(db, "users"), uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data();
+    } else {
+      console.log("No such document!");
+    }
+  };
+
   return {
     currentUser,
     loading,
     signup,
     login,
     logout,
+    getUserProfile,
   };
 }

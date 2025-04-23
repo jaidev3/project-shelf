@@ -1,12 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import DashboardSidebar from "../navigation/DashboardSidebar";
 import DashboardHeader from "../navigation/DashboardHeader";
 import { useAuth } from "../../contexts/AuthContext";
 
+// Add UserProfile type
+type UserProfile = {
+  displayName?: string;
+  photoURL?: string;
+  username?: string;
+  [key: string]: any;
+};
+
 export default function DashboardLayout() {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, getUserProfile } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+
+  // Fetch user profile when currentUser changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (currentUser?.uid) {
+        const profile = await getUserProfile(currentUser.uid);
+        setUserProfile(profile);
+      } else {
+        setUserProfile(null);
+      }
+    };
+    fetchProfile();
+  }, [currentUser, getUserProfile]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -25,7 +47,7 @@ export default function DashboardLayout() {
           onClick={toggleSidebar}
         ></div>
         <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <DashboardSidebar onClose={toggleSidebar} />
+          <DashboardSidebar onClose={toggleSidebar} userProfile={userProfile} />
         </div>
       </div>
 
@@ -33,7 +55,10 @@ export default function DashboardLayout() {
       <div className="hidden md:flex md:flex-shrink-0">
         <div className="flex flex-col w-64">
           <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
-            <DashboardSidebar />
+            <DashboardSidebar
+              onClose={toggleSidebar}
+              userProfile={userProfile}
+            />
           </div>
         </div>
       </div>
