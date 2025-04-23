@@ -291,6 +291,23 @@ export default function CaseStudyEditor() {
     appendGallery(newMediaItem);
   };
 
+  // Tags handlers
+  const addTag = (tag: string) => {
+    if (tag.trim() && !watchedValues.tags.includes(tag.trim())) {
+      setValue("tags", [...watchedValues.tags, tag.trim()], {
+        shouldDirty: true,
+      });
+    }
+  };
+
+  const removeTag = (tag: string) => {
+    setValue(
+      "tags",
+      watchedValues.tags.filter((t) => t !== tag),
+      { shouldDirty: true }
+    );
+  };
+
   // Tools handlers
   const addTool = (tool: string) => {
     if (tool.trim() && !watchedValues.tools.includes(tool.trim())) {
@@ -460,6 +477,8 @@ export default function CaseStudyEditor() {
             removeTestimonial(index);
           }
         }}
+        addTag={addTag}
+        removeTag={removeTag}
       />
     </div>
   );

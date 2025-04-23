@@ -32,6 +32,9 @@ interface TabNavigationProps {
   watchedValues: CaseStudyFormValues;
   // Overview tab props
   handleImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  // Tags props
+  addTag: (tag: string) => void;
+  removeTag: (tag: string) => void;
   // Media tab props
   galleryFields: any[];
   handleMediaUpload: (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
@@ -75,6 +78,9 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
   watchedValues,
   // Overview
   handleImageUpload,
+  // Tags
+  addTag,
+  removeTag,
   // Media
   galleryFields,
   handleMediaUpload,
@@ -112,14 +118,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
           control={control}
           errors={errors}
           tags={watchedValues.tags}
-          addTag={(tag: string) => {
-            if (tag.trim() && !watchedValues.tags.includes(tag.trim())) {
-              // This would be handled by the parent component
-            }
-          }}
-          removeTag={(tag: string) => {
-            // This would be handled by the parent component
-          }}
+          addTag={addTag}
+          removeTag={removeTag}
           handleImageUpload={handleImageUpload}
           coverImage={watchedValues.image || ""}
           removeCoverImage={() => {
