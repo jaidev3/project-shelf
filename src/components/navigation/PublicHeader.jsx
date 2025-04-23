@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { ThemeToggle } from "../ThemeToggle";
 
 export default function PublicHeader() {
   const { currentUser } = useAuth();
@@ -26,6 +27,7 @@ export default function PublicHeader() {
               >
                 Sign Up
               </Link>
+              <ThemeToggle />
             </>
           ) : (
             <Link

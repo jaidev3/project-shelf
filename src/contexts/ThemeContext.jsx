@@ -1,154 +1,60 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
-import { useAuth } from "./AuthContext";
+import { createContext, useEffect, useState } from "react";
 
-// Define theme presets
-export const themePresets = {
-  minimalist: {
-    name: "Minimalist",
-    colors: {
-      primary: "#000000",
-      secondary: "#333333",
-      accent: "#0070f3",
-      background: "#ffffff",
-      text: "#222222",
-      textLight: "#666666",
-    },
-    fonts: {
-      heading: "'Inter', sans-serif",
-      body: "'Inter', sans-serif",
-    },
-    spacing: {
-      contentWidth: "max-w-5xl",
-      gap: "gap-6",
-    },
-  },
-  bold: {
-    name: "Bold & Creative",
-    colors: {
-      primary: "#ff4d4d",
-      secondary: "#2d2d2d",
-      accent: "#ffca28",
-      background: "#121212",
-      text: "#ffffff",
-      textLight: "#b3b3b3",
-    },
-    fonts: {
-      heading: "'Montserrat', sans-serif",
-      body: "'Open Sans', sans-serif",
-    },
-    spacing: {
-      contentWidth: "max-w-6xl",
-      gap: "gap-8",
-    },
-  },
-  professional: {
-    name: "Professional",
-    colors: {
-      primary: "#2c5282",
-      secondary: "#4a5568",
-      accent: "#38b2ac",
-      background: "#f7fafc",
-      text: "#1a202c",
-      textLight: "#718096",
-    },
-    fonts: {
-      heading: "'Roboto', sans-serif",
-      body: "'Lato', sans-serif",
-    },
-    spacing: {
-      contentWidth: "max-w-5xl",
-      gap: "gap-5",
-    },
-  },
+export const Theme = {
+  light: "light",
+  dark: "dark",
+  system: "system",
 };
 
-const ThemeContext = createContext();
+export const ThemeProviderState = {
+  theme: Theme.system,
+  setTheme: () => null,
+};
 
-export function useTheme() {
-  return useContext(ThemeContext);
-}
+const initialState = {
+  theme: Theme.system,
+  setTheme: () => null,
+};
 
-export function ThemeProvider({ children }) {
-  const { currentUser } = useAuth();
-  const [currentTheme, setCurrentTheme] = useState(themePresets.minimalist);
-  const [isLoading, setIsLoading] = useState(true);
+export const ThemeProviderContext = createContext(initialState);
 
-  // Get user theme from Firestore or use default
+export function ThemeProvider({
+  children,
+  defaultTheme = Theme.system,
+  storageKey = "ui-theme",
+  ...props
+}) {
+  const [theme, setTheme] = useState(
+    () => localStorage.getItem(storageKey) || defaultTheme
+  );
+
   useEffect(() => {
-    async function getUserTheme() {
-      if (currentUser) {
-        try {
-          const themeDoc = await getDoc(
-            doc(db, "users", currentUser.uid, "settings", "theme")
-          );
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
 
-          if (themeDoc.exists()) {
-            setCurrentTheme(themeDoc.data());
-          } else {
-            // Create default theme settings if they don't exist
-            await setDoc(
-              doc(db, "users", currentUser.uid, "settings", "theme"),
-              themePresets.minimalist
-            );
-          }
-        } catch (error) {
-          console.error("Error fetching theme:", error);
-        }
-      } else {
-        // Default theme for non-authenticated users
-        setCurrentTheme(themePresets.minimalist);
-      }
-      setIsLoading(false);
+    if (theme === Theme.system) {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? Theme.dark
+        : Theme.light;
+      root.classList.add(systemTheme);
+      return;
     }
 
-    getUserTheme();
-  }, [currentUser]);
-
-  // Save theme to Firestore when it changes
-  async function saveTheme(theme) {
-    if (!currentUser) return;
-
-    try {
-      await updateDoc(
-        doc(db, "users", currentUser.uid, "settings", "theme"),
-        theme
-      );
-      setCurrentTheme(theme);
-    } catch (error) {
-      console.error("Error updating theme:", error);
-    }
-  }
-
-  // Apply theme preset
-  function applyThemePreset(presetName) {
-    const preset = themePresets[presetName];
-    if (preset) {
-      saveTheme(preset);
-    }
-  }
-
-  // Update a specific theme property
-  function updateTheme(property, value) {
-    const updatedTheme = {
-      ...currentTheme,
-      [property]: value,
-    };
-    saveTheme(updatedTheme);
-  }
+    root.classList.add(theme);
+  }, [theme]);
 
   const value = {
-    currentTheme,
-    themePresets,
-    applyThemePreset,
-    updateTheme,
-    isLoading,
+    theme,
+    setTheme: (theme) => {
+      localStorage.setItem(storageKey, theme);
+      setTheme(theme);
+    },
   };
 
   return (
-    <ThemeContext.Provider value={value}>
-      {!isLoading && children}
-    </ThemeContext.Provider>
+    <ThemeProviderContext.Provider {...props} value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
   );
 }
