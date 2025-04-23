@@ -7,8 +7,8 @@ import {
   Input,
   Avatar,
 } from "@heroui/react";
-import { Link, useNavigate } from "react-router-dom";
-import { FiMenu, FiBell, FiUser, FiLogOut, FiSettings } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import { FiMenu, FiBell, FiUser, FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import { User } from "firebase/auth";
 import { showSuccessToast } from "../../utils/toast";

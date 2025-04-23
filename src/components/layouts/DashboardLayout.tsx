@@ -28,7 +28,7 @@ export default function DashboardLayout() {
       }
     };
     fetchProfile();
-  }, [currentUser, getUserProfile]);
+  }, [currentUser]);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
