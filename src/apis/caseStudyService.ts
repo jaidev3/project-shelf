@@ -24,12 +24,11 @@ import { db, storage } from "../lib/firebase";
  * @param {string} userId - The user ID
  * @returns {Promise<Array>} - Array of case studies
  */
-export async function getUserCaseStudies(userId) {
+export async function getUserCaseStudies(userId: string) {
   try {
     const q = query(
       collection(db, "caseStudies"),
       where("userId", "==", userId),
-      orderBy("createdAt", "desc")
     );
 
     const querySnapshot = await getDocs(q);
@@ -48,7 +47,7 @@ export async function getUserCaseStudies(userId) {
  * @param {string} caseStudyId - The case study ID
  * @returns {Promise<Object>} - Case study data
  */
-export async function getCaseStudy(caseStudyId) {
+export async function getCaseStudy(caseStudyId: string) {
   try {
     const caseStudyDoc = await getDoc(doc(db, "caseStudies", caseStudyId));
 
@@ -71,7 +70,7 @@ export async function getCaseStudy(caseStudyId) {
  * @param {Object} caseStudyData - The case study data
  * @returns {Promise<Object>} - The created case study
  */
-export async function createCaseStudy(caseStudyData) {
+export async function createCaseStudy(caseStudyData: any) {
   try {
     const newCaseStudy = {
       ...caseStudyData,
@@ -96,7 +95,7 @@ export async function createCaseStudy(caseStudyData) {
  * @param {Object} caseStudyData - The updated case study data
  * @returns {Promise<void>}
  */
-export async function updateCaseStudy(caseStudyId, caseStudyData) {
+export async function updateCaseStudy(caseStudyId: string, caseStudyData: any) {
   try {
     const caseStudyRef = doc(db, "caseStudies", caseStudyId);
 
@@ -115,7 +114,7 @@ export async function updateCaseStudy(caseStudyId, caseStudyData) {
  * @param {string} caseStudyId - The case study ID
  * @returns {Promise<void>}
  */
-export async function deleteCaseStudy(caseStudyId) {
+export async function deleteCaseStudy(caseStudyId: string) {
   try {
     await deleteDoc(doc(db, "caseStudies", caseStudyId));
   } catch (error) {
@@ -131,7 +130,11 @@ export async function deleteCaseStudy(caseStudyId) {
  * @param {File} file - The image file to upload
  * @returns {Promise<string>} - The download URL
  */
-export async function uploadCaseStudyImage(userId, caseStudyId, file) {
+export async function uploadCaseStudyImage(
+  userId: string,
+  caseStudyId: string,
+  file: File
+) {
   try {
     const fileName = `${Date.now()}_${file.name}`;
     const storageRef = ref(
@@ -154,7 +157,7 @@ export async function uploadCaseStudyImage(userId, caseStudyId, file) {
  * @param {string} imageUrl - The full URL of the image to delete
  * @returns {Promise<void>}
  */
-export async function deleteCaseStudyImage(imageUrl) {
+export async function deleteCaseStudyImage(imageUrl: string) {
   try {
     // Extract the path from the URL
     const storageRef = ref(storage, imageUrl);
@@ -170,7 +173,7 @@ export async function deleteCaseStudyImage(imageUrl) {
  * @param {string} username - The username
  * @returns {Promise<Array>} - Array of case studies
  */
-export async function getPublicCaseStudies(username) {
+export async function getPublicCaseStudies(username: string) {
   try {
     // First get the user ID from the username
     const usersRef = collection(db, "users");

@@ -3,13 +3,35 @@ import { useNavigate } from "react-router-dom";
 import DesignerPortfolio from "../../components/portfolios/DesignerPortfolio";
 import DeveloperPortfolio from "../../components/portfolios/DeveloperPortfolio";
 import WriterPortfolio from "../../components/portfolios/WriterPortfolio";
-import { getUserPortfolios } from "../../apis/portfolioService";
+import {
+  getUserCaseStudies,
+  updateCaseStudy,
+} from "../../apis/caseStudyService";
 import { getCurrentUser } from "../../apis/authService";
-import type { Portfolio } from "../../apis/portfolioService";
+import { CaseStudy } from "../../types/CaseStudy";
+import { showSuccessToast, showErrorToast } from "../../utils/toast";
+
+// Define a type that matches what the portfolio components expect
+interface PortfolioData {
+  userData: {
+    name: string;
+    title: string;
+    bio: string;
+    avatar: string;
+    caseStudies: Array<{
+      id: string;
+      title: string;
+      description: string;
+      image: string;
+      tags: string[];
+    }>;
+  };
+  username: string;
+}
 
 export default function NewCaseStudy() {
-  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
-  const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(
+  const [caseStudy, setCaseStudy] = useState<CaseStudy | null>(null);
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(
     null
   );
   const [portfolioStyle, setPortfolioStyle] = useState<
@@ -18,9 +40,9 @@ export default function NewCaseStudy() {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch user's portfolios
+  // Fetch user's case study and create portfolio data
   useEffect(() => {
-    const fetchPortfolios = async () => {
+    const fetchCaseStudy = async () => {
       try {
         const currentUser = getCurrentUser();
         if (!currentUser) {
@@ -29,22 +51,42 @@ export default function NewCaseStudy() {
           return;
         }
 
-        const userPortfolios = await getUserPortfolios(currentUser.uid);
-        setPortfolios(userPortfolios);
-        console.log("portfolios", portfolios, currentUser.uid);
-        // Select the first portfolio by default if available
-        if (userPortfolios.length > 0) {
-          setSelectedPortfolio(userPortfolios[0]);
-          setPortfolioStyle(userPortfolios[0].style);
+        const userCaseStudies = await getUserCaseStudies(currentUser.uid);
+        if (userCaseStudies.length > 0) {
+          // Store the raw case study data
+          setCaseStudy(userCaseStudies[0] as CaseStudy);
+
+          // Create portfolio data from the case study
+          const caseStudyData = userCaseStudies[0] as any;
+          setPortfolioData({
+            userData: {
+              name: currentUser.displayName || "User",
+              title: "Professional",
+              bio: caseStudyData.description || "No bio available",
+              avatar: currentUser.photoURL || "https://via.placeholder.com/150",
+              caseStudies: [
+                {
+                  id: caseStudyData.id || "1",
+                  title: caseStudyData.title || "Untitled",
+                  description: caseStudyData.description || "No description",
+                  image:
+                    caseStudyData.image ||
+                    "https://via.placeholder.com/600x400",
+                  tags: caseStudyData.tags || [],
+                },
+              ],
+            },
+            username: currentUser.uid,
+          });
         }
       } catch (error) {
-        console.error("Error fetching portfolios:", error);
+        console.error("Error fetching case study:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchPortfolios();
+    fetchCaseStudy();
   }, []);
 
   const handleCreatePortfolio = () => {
@@ -52,28 +94,46 @@ export default function NewCaseStudy() {
     navigate("/dashboard/case-study/create");
   };
 
-  const handlePortfolioSelect = (portfolioId: string) => {
-    const portfolio = portfolios.find((p) => p.id === portfolioId);
-    if (portfolio) {
-      setSelectedPortfolio(portfolio);
-      setPortfolioStyle(portfolio.style);
-    }
-  };
-
   const handleStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPortfolioStyle(e.target.value as "designer" | "developer" | "writer");
   };
 
-  const handleSaveDraft = () => {
-    alert("Save draft functionality would be implemented here");
-  };
+  const handlePublishToggle = async () => {
+    if (caseStudy && caseStudy.id) {
+      try {
+        const newPublishStatus = !caseStudy.isPublished;
 
-  const handlePublish = () => {
-    alert("Publish functionality would be implemented here");
+        // Update in the database
+        await updateCaseStudy(caseStudy.id, { isPublished: newPublishStatus });
+
+        // Update in local state
+        setCaseStudy({
+          ...caseStudy,
+          isPublished: newPublishStatus,
+        });
+
+        // Show success toast notification
+        showSuccessToast(
+          `Case study ${
+            newPublishStatus ? "published" : "moved to draft"
+          } successfully`
+        );
+      } catch (error) {
+        console.error("Error updating publish status:", error);
+        showErrorToast("Failed to update publish status. Please try again.");
+      }
+    } else {
+      console.error("No case study selected or case study has no ID");
+    }
   };
 
   const handleEdit = () => {
-    alert("Edit functionality would be implemented here");
+    if (caseStudy && caseStudy.id) {
+      // Navigate to the CaseStudyEditor with the current case study ID
+      navigate(`/dashboard/case-study/${caseStudy.id}`);
+    } else {
+      console.error("No case study selected or case study has no ID");
+    }
   };
 
   const handleDelete = () => {
@@ -93,28 +153,28 @@ export default function NewCaseStudy() {
 
   // Render portfolio based on style
   const renderPortfolio = () => {
-    if (!selectedPortfolio) return null;
+    if (!portfolioData) return null;
 
     switch (portfolioStyle) {
       case "designer":
         return (
           <DesignerPortfolio
-            userData={selectedPortfolio.userData}
-            username={selectedPortfolio.username}
+            userData={portfolioData.userData}
+            username={portfolioData.username}
           />
         );
       case "developer":
         return (
           <DeveloperPortfolio
-            userData={selectedPortfolio.userData}
-            username={selectedPortfolio.username}
+            userData={portfolioData.userData}
+            username={portfolioData.username}
           />
         );
       case "writer":
         return (
           <WriterPortfolio
-            userData={selectedPortfolio.userData}
-            username={selectedPortfolio.username}
+            userData={portfolioData.userData}
+            username={portfolioData.username}
           />
         );
       default:
@@ -130,34 +190,25 @@ export default function NewCaseStudy() {
 
       {/* Portfolio Section */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-2xl font-semibold mb-4 dark:text-white">
-          Portfolio
-        </h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold dark:text-white">Portfolio</h2>
 
-        {portfolios.length > 0 ? (
+          {/* Status Badge */}
+          {caseStudy && (
+            <span
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                caseStudy.isPublished
+                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+              }`}
+            >
+              {caseStudy.isPublished ? "Published" : "Draft"}
+            </span>
+          )}
+        </div>
+
+        {portfolioData ? (
           <div>
-            {/* Portfolio Selection */}
-            <div className="mb-4">
-              <label
-                htmlFor="portfolioSelect"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Select Portfolio
-              </label>
-              <select
-                id="portfolioSelect"
-                value={selectedPortfolio?.id || ""}
-                onChange={(e) => handlePortfolioSelect(e.target.value)}
-                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-4"
-              >
-                {portfolios.map((portfolio) => (
-                  <option key={portfolio.id} value={portfolio.id}>
-                    {portfolio.userData.name} - {portfolio.style}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Portfolio Style Dropdown */}
             <div className="mb-4">
               <label
@@ -192,16 +243,14 @@ export default function NewCaseStudy() {
                 Edit
               </button>
               <button
-                onClick={handleSaveDraft}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+                onClick={handlePublishToggle}
+                className={`text-white px-4 py-2 rounded-md transition ${
+                  caseStudy?.isPublished
+                    ? "bg-yellow-600 hover:bg-yellow-700"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
               >
-                Save Draft
-              </button>
-              <button
-                onClick={handlePublish}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
-              >
-                Publish
+                {caseStudy?.isPublished ? "Move to Draft" : "Publish"}
               </button>
               <button
                 onClick={handleDelete}
