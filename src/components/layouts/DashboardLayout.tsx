@@ -46,7 +46,7 @@ export default function DashboardLayout() {
           userProfile={userProfile}
         />
         <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className="py-6 px-4 sm:px-6 lg:px-8">
+          <div className=" sm:px-6 lg:px-8">
             <Outlet />
           </div>
         </main>

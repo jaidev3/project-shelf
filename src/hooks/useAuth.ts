@@ -4,12 +4,22 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  User,
+  UserCredential,
 } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
-export function useAuth() {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export interface UseAuthReturn {
+  currentUser: User | null;
+  loading: boolean;
+  signup: (email: string, password: string) => Promise<UserCredential>;
+  login: (email: string, password: string) => Promise<UserCredential>;
+  logout: () => Promise<void>;
+}
+
+export function useAuth(): UseAuthReturn {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -20,11 +30,11 @@ export function useAuth() {
     return unsubscribe;
   }, []);
 
-  const signup = (email, password) => {
+  const signup = (email: string, password: string) => {
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const login = (email, password) => {
+  const login = (email: string, password: string) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
