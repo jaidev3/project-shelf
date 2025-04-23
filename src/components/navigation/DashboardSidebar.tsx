@@ -16,10 +16,10 @@ const navItems = [
 
 export default function DashboardSidebar({
   onClose,
-  userProfile,
+  user,
 }: {
   onClose?: () => void;
-  userProfile: any;
+  user: any;
 }) {
   const location = useLocation();
 
@@ -46,10 +46,10 @@ export default function DashboardSidebar({
       <div className="px-4 py-6">
         <div className="flex items-center space-x-3">
           <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 overflow-hidden dark:bg-neutral-800 dark:text-gray-300">
-            {userProfile?.photoURL ? (
+            {user?.photoURL ? (
               <img
-                src={userProfile.photoURL}
-                alt={userProfile.displayName || "User"}
+                src={user.photoURL}
+                alt={user.displayName || "User"}
                 className="h-full w-full object-cover"
               />
             ) : (
@@ -58,10 +58,10 @@ export default function DashboardSidebar({
           </div>
           <div>
             <h2 className="text-lg font-medium text-gray-900 truncate max-w-[150px] dark:text-gray-100">
-              {userProfile?.displayName || "Your Portfolio"}
+              {user?.displayName || "Your Portfolio"}
             </h2>
             <p className="text-sm text-gray-500 truncate max-w-[150px] dark:text-gray-400">
-              @{userProfile?.username || "username"}
+              @{user?.username || "username"}
             </p>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function DashboardSidebar({
       {/* View public portfolio link */}
       <div className="px-3 py-4 border-t border-gray-200 dark:border-neutral-700">
         <Link
-          to={`/${userProfile?.username || "#"}`}
+          to={`/${user?.username || "#"}`}
           className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-indigo-600 hover:text-indigo-700 hover:bg-gray-50 dark:text-indigo-400 dark:hover:text-indigo-300 dark:hover:bg-neutral-800"
         >
           <span className="truncate">View Public Portfolio</span>

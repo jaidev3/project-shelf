@@ -2,14 +2,12 @@ import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { storage } from "../../lib/firebase";
-import { auth } from "../../lib/firebase";
 import { FiUpload, FiSave, FiCheck } from "react-icons/fi";
 import { Button, Input, Textarea } from "@heroui/react";
-import { UserProfile } from "@/hooks/useAuth";
+import { UserProfile } from "@/apis/authService";
 
 export default function ProfileSettings() {
-  const { currentUser, getUserProfile, updateUserProfile } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { currentUser, updateUserProfile } = useAuth();
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -17,39 +15,12 @@ export default function ProfileSettings() {
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(
     null
   );
-  // const profileData = getUserProfile(auth.currentUser?.uid);
   const [formData, setFormData] = useState<UserProfile>({
     displayName: "",
     profession: "",
     description: "",
     photoURL: "",
   });
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (currentUser?.uid) {
-        try {
-          const userProfile = await getUserProfile(currentUser.uid);
-          if (userProfile) {
-            setFormData({
-              displayName: userProfile.displayName || "",
-              username: userProfile.username || "",
-              profession: userProfile.profession || "",
-              description: userProfile.description || "",
-              photoURL: userProfile.photoURL || "",
-            });
-          }
-        } catch (err) {
-          console.error("Error fetching user profile:", err);
-          setError("Failed to load profile data");
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchUserProfile();
-  }, [currentUser, getUserProfile]);
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -125,14 +96,6 @@ export default function ProfileSettings() {
       setSaving(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="profile-settings-page max-w-3xl mx-auto p-4 sm:p-6 lg:p-8">

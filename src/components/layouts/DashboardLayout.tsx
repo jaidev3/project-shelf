@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import DashboardSidebar from "../navigation/DashboardSidebar";
 import DashboardHeader from "../navigation/DashboardHeader";
@@ -13,24 +13,10 @@ type UserProfile = {
 };
 
 export default function DashboardLayout() {
-  const { currentUser, getUserProfile } = useAuth();
+  const { currentUser } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  // Fetch user profile when currentUser changes
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (currentUser?.uid) {
-        const profile = await getUserProfile(currentUser.uid);
-        if (profile) {
-          setUserProfile(profile);
-        }
-      } else {
-        setUserProfile(null);
-      }
-    };
-    fetchProfile();
-  }, [currentUser]);
+  console.log("currentUser", currentUser);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -49,7 +35,7 @@ export default function DashboardLayout() {
           onClick={toggleSidebar}
         ></div>
         <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white">
-          <DashboardSidebar onClose={toggleSidebar} userProfile={userProfile} />
+          <DashboardSidebar onClose={toggleSidebar} user={currentUser} />
         </div>
       </div>
 
@@ -59,7 +45,7 @@ export default function DashboardLayout() {
           <div className="flex flex-col h-0 flex-1 border-r border-gray-200 bg-white">
             <DashboardSidebar
               onClose={toggleSidebar}
-              userProfile={userProfile}
+              user={currentUser}
             />
           </div>
         </div>
@@ -70,7 +56,6 @@ export default function DashboardLayout() {
         <DashboardHeader
           toggleSidebar={toggleSidebar}
           user={currentUser}
-          // userProfile={userProfile}
         />
         <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50 dark:bg-dark-background transition-colors">
           <div className="sm:px-6 lg:px-8">
