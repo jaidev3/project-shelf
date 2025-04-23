@@ -12,6 +12,7 @@ import { FiMenu, FiBell, FiUser, FiLogOut } from "react-icons/fi";
 import { useAuth } from "../../contexts/AuthContext";
 import { User } from "firebase/auth";
 import { showSuccessToast } from "../../utils/toast";
+import { ThemeToggle } from "../ThemeToggle";
 
 export default function DashboardHeader({
   toggleSidebar,
@@ -29,7 +30,7 @@ export default function DashboardHeader({
     try {
       await logout();
       showSuccessToast("Logged out successfully!");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Logout failed", error);
     }
@@ -88,6 +89,10 @@ export default function DashboardHeader({
             <span className="sr-only">View notifications</span>
             <FiBell className="h-6 w-6" />
           </Button>
+          {/* Theme toggle */}
+          <div className="ml-2">
+            <ThemeToggle />
+          </div>
 
           {/* Profile dropdown */}
           <div className="ml-3 relative">

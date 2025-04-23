@@ -70,8 +70,8 @@ export default function DashboardLayout() {
           user={currentUser}
           userProfile={userProfile}
         />
-        <main className="flex-1 relative overflow-y-auto focus:outline-none">
-          <div className=" sm:px-6 lg:px-8">
+        <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50 dark:bg-dark-background transition-colors">
+          <div className="sm:px-6 lg:px-8">
             <Outlet />
           </div>
         </main>

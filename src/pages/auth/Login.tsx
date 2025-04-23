@@ -39,7 +39,7 @@ export default function Login() {
       setLoginError(null);
       await login(data.email, data.password);
       showSuccessToast("Logged in successfully!");
-      navigate("/dashboard"); // Redirect to dashboard after successful login
+      navigate("/"); // Redirect to dashboard after successful login
     } catch (error) {
       let errorMsg = "An unexpected error occurred";
       if (error instanceof FirebaseError) {
