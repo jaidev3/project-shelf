@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 import DesignerPortfolio from "../../components/portfolios/DesignerPortfolio";
 import DeveloperPortfolio from "../../components/portfolios/DeveloperPortfolio";
 import WriterPortfolio from "../../components/portfolios/WriterPortfolio";
@@ -119,6 +119,11 @@ const DUMMY_USERS: Record<string, User> = {
 
 export default function PortfolioHome() {
   const { username } = useParams<{ username: string }>();
+  const location = useLocation();
+
+  // Determine if we're in the example route or regular route
+  const isExampleRoute = location.pathname.startsWith("/example/");
+  const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
 
   // If username doesn't exist in our dummy data, show a not found message
   const userData = username ? DUMMY_USERS[username.toLowerCase()] : undefined;
@@ -234,7 +239,7 @@ export default function PortfolioHome() {
                     ))}
                   </div>
                   <Link
-                    to={`/${username}/case-study/${study.id}`}
+                    to={`${routePrefix}/case-study/${study.id}`}
                     className="text-indigo-600 dark:text-indigo-400 font-medium hover:underline inline-flex items-center"
                   >
                     View case study

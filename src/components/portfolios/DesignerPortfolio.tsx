@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Designer portfolio type definition
 export type DesignerPortfolioProps = {
@@ -23,6 +23,12 @@ export default function DesignerPortfolio({
   userData,
   username,
 }: DesignerPortfolioProps) {
+  const location = useLocation();
+
+  // Determine if we're in the example route or regular route
+  const isExampleRoute = location.pathname.startsWith("/example/");
+  const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
+
   return (
     <div className="designer-portfolio">
       {/* Header with large visual impact */}
@@ -83,7 +89,7 @@ export default function DesignerPortfolio({
                   ))}
                 </div>
                 <Link
-                  to={`/${username}/case-study/${study.id}`}
+                  to={`${routePrefix}/case-study/${study.id}`}
                   className="inline-block bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition-colors"
                 >
                   View Project

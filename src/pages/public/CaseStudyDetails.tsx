@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useLocation } from "react-router-dom";
 
 // Import the dummy data (in real app, this would be from a central data store)
 // Using a smaller dataset for simplicity
@@ -103,6 +103,11 @@ const DUMMY_USERS = {
 
 export default function CaseStudyDetails() {
   const { username, caseStudyId } = useParams();
+  const location = useLocation();
+
+  // Determine if we're in the example route or regular route
+  const isExampleRoute = location.pathname.startsWith("/example/");
+  const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
 
   // If username doesn't exist or case study doesn't exist, show not found message
   const user = username && DUMMY_USERS[username.toLowerCase()];
@@ -120,7 +125,7 @@ export default function CaseStudyDetails() {
         </p>
         {user ? (
           <Link
-            to={`/${username}`}
+            to={`${routePrefix}`}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
           >
             Back to {user.name}'s Portfolio
@@ -152,7 +157,7 @@ export default function CaseStudyDetails() {
             <div className="container mx-auto">
               <div className="flex flex-col items-start">
                 <Link
-                  to={`/${username}`}
+                  to={`${routePrefix}`}
                   className="text-white/80 hover:text-white mb-2 flex items-center"
                 >
                   <svg
@@ -308,7 +313,7 @@ export default function CaseStudyDetails() {
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8 mt-12">
             <div className="flex flex-col sm:flex-row justify-between">
               <Link
-                to={`/${username}`}
+                to={`${routePrefix}`}
                 className="bg-white dark:bg-neutral-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors mb-4 sm:mb-0 text-center sm:text-left"
               >
                 Back to Portfolio

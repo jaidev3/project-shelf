@@ -35,6 +35,12 @@ export const AppRoutes = () => {
         <Route path="forgot-password" element={<ForgotPassword />} />
       </Route>
 
+      {/* Example portfolio routes */}
+      <Route path="/example/:username" element={<PublicLayout />}>
+        <Route index element={<PortfolioHome />} />
+        <Route path="case-study/:caseStudyId" element={<CaseStudyDetails />} />
+      </Route>
+
       {/* Portfolio public routes - Dynamic based on username */}
       <Route path="/:username" element={<PublicLayout />}>
         <Route index element={<PortfolioHome />} />

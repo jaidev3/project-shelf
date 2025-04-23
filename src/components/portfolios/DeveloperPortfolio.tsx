@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Developer portfolio type definition
 export type DeveloperPortfolioProps = {
@@ -23,6 +23,12 @@ export default function DeveloperPortfolio({
   userData,
   username,
 }: DeveloperPortfolioProps) {
+  const location = useLocation();
+
+  // Determine if we're in the example route or regular route
+  const isExampleRoute = location.pathname.startsWith("/example/");
+  const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
+
   return (
     <div className="developer-portfolio">
       {/* Terminal-inspired header */}
@@ -110,7 +116,7 @@ export default function DeveloperPortfolio({
                     ))}
                   </div>
                   <Link
-                    to={`/${username}/case-study/${study.id}`}
+                    to={`${routePrefix}/case-study/${study.id}`}
                     className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline font-medium"
                   >
                     view.details()

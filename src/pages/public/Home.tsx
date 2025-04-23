@@ -76,7 +76,7 @@ export default function Home() {
                   and demonstrate your design process.
                 </p>
                 <Link
-                  to="/alice"
+                  to="/example/alice"
                   className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-medium px-5 py-2 rounded-lg hover:opacity-90 transition-opacity inline-block"
                 >
                   View Example
@@ -105,7 +105,7 @@ export default function Home() {
                   problem-solving abilities.
                 </p>
                 <Link
-                  to="/bob"
+                  to="/example/bob"
                   className="bg-blue-600 text-white font-medium px-5 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-block"
                 >
                   View Example
@@ -134,7 +134,7 @@ export default function Home() {
                   showcase content strategy expertise.
                 </p>
                 <Link
-                  to="/carol"
+                  to="/example/carol"
                   className="bg-amber-800 text-white font-medium px-5 py-2 rounded-lg hover:bg-amber-700 transition-colors inline-block"
                 >
                   View Example

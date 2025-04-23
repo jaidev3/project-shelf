@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 // Writer portfolio type definition
 export type WriterPortfolioProps = {
@@ -23,6 +23,12 @@ export default function WriterPortfolio({
   userData,
   username,
 }: WriterPortfolioProps) {
+  const location = useLocation();
+
+  // Determine if we're in the example route or regular route
+  const isExampleRoute = location.pathname.startsWith("/example/");
+  const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
+
   return (
     <div className="writer-portfolio font-serif">
       {/* Elegant header with serif typography */}
@@ -86,7 +92,7 @@ export default function WriterPortfolio({
                       ))}
                     </div>
                     <Link
-                      to={`/${username}/case-study/${study.id}`}
+                      to={`${routePrefix}/case-study/${study.id}`}
                       className="inline-block border-b-2 border-amber-800 text-amber-800 hover:border-amber-600 hover:text-amber-600 transition-colors font-medium"
                     >
                       Read the full story
