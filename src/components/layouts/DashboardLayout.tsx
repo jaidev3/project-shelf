@@ -22,7 +22,9 @@ export default function DashboardLayout() {
     const fetchProfile = async () => {
       if (currentUser?.uid) {
         const profile = await getUserProfile(currentUser.uid);
-        setUserProfile(profile);
+        if (profile) {
+          setUserProfile(profile);
+        }
       } else {
         setUserProfile(null);
       }
@@ -68,7 +70,7 @@ export default function DashboardLayout() {
         <DashboardHeader
           toggleSidebar={toggleSidebar}
           user={currentUser}
-          userProfile={userProfile}
+          // userProfile={userProfile}
         />
         <main className="flex-1 relative overflow-y-auto focus:outline-none bg-gray-50 dark:bg-dark-background transition-colors">
           <div className="sm:px-6 lg:px-8">

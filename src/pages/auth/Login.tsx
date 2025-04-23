@@ -4,7 +4,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button, Input } from "@heroui/react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../contexts/AuthContext";
 import { FirebaseError } from "firebase/app";
 import { showSuccessToast, showErrorToast } from "../../utils/toast";
 
@@ -39,7 +39,7 @@ export default function Login() {
       setLoginError(null);
       await login(data.email, data.password);
       showSuccessToast("Logged in successfully!");
-      navigate("/"); // Redirect to dashboard after successful login
+      navigate("/dashboard"); // Redirect to dashboard after successful login
     } catch (error) {
       let errorMsg = "An unexpected error occurred";
       if (error instanceof FirebaseError) {

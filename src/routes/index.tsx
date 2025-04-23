@@ -1,6 +1,5 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { ReactNode } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { Routes, Route } from "react-router-dom";
+import { useProtectedRoute } from "../hooks/useProtectedRoute";
 
 // Layout components
 import PublicLayout from "../components/layouts/PublicLayout";
@@ -23,16 +22,9 @@ import PortfolioHome from "../pages/public/PortfolioHome";
 import CaseStudyDetails from "../pages/public/CaseStudyDetails";
 import NotFound from "../pages/NotFound";
 
-// Protected route wrapper
-function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { currentUser } = useAuth();
-  if (!currentUser) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-}
-
 export const AppRoutes = () => {
+  const ProtectedRoute = useProtectedRoute();
+
   return (
     <Routes>
       {/* Public routes */}

@@ -17,15 +17,15 @@ import { ThemeToggle } from "../ThemeToggle";
 export default function DashboardHeader({
   toggleSidebar,
   user,
-  userProfile,
-}: {
+}: // userProfile,
+{
   toggleSidebar: () => void;
   user: User | null;
-  userProfile: any; // TODO: Replace with proper UserProfile type
+  // userProfile: any; // TODO: Replace with proper UserProfile type
 }) {
   const { logout } = useAuth();
   const navigate = useNavigate();
-
+  console.log("user", user);
   const handleLogout = async () => {
     try {
       await logout();
@@ -104,9 +104,9 @@ export default function DashboardHeader({
                   className="max-w-xs bg-white flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-neutral-800"
                   id="user-menu-button"
                 >
-                  {userProfile?.photoURL ? (
+                  {user?.photoURL ? (
                     <Avatar
-                      src={userProfile.photoURL}
+                      src={user?.photoURL}
                       alt="Profile"
                       radius="full"
                       size="md"
@@ -114,12 +114,12 @@ export default function DashboardHeader({
                     />
                   ) : (
                     <Avatar
-                      name={userProfile?.displayName || user?.email || ""}
+                      name={user?.displayName || user?.email || ""}
                       radius="full"
                       size="md"
                       className="h-8 w-8 bg-indigo-500 text-white dark:bg-indigo-700"
                     >
-                      {userProfile?.displayName?.[0] || user?.email?.[0] || ""}
+                      {user?.displayName?.[0] || user?.email?.[0] || ""}
                     </Avatar>
                   )}
                 </Button>
