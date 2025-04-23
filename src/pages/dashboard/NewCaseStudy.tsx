@@ -38,6 +38,7 @@ export default function NewCaseStudy() {
     "designer" | "developer" | "writer"
   >("designer");
   const [isLoading, setIsLoading] = useState(true);
+  const [hasStyleChanged, setHasStyleChanged] = useState(false);
   const navigate = useNavigate();
 
   // Fetch user's case study and create portfolio data
@@ -54,10 +55,20 @@ export default function NewCaseStudy() {
         const userCaseStudies = await getUserCaseStudies(currentUser.uid);
         if (userCaseStudies.length > 0) {
           // Store the raw case study data
-          setCaseStudy(userCaseStudies[0] as CaseStudy);
+          const caseStudyData = userCaseStudies[0] as CaseStudy;
+          setCaseStudy(caseStudyData);
+
+          // Set the portfolio style from the case study if available
+          if (caseStudyData.portfolioStyle) {
+            setPortfolioStyle(
+              caseStudyData.portfolioStyle as
+                | "designer"
+                | "developer"
+                | "writer"
+            );
+          }
 
           // Create portfolio data from the case study
-          const caseStudyData = userCaseStudies[0] as any;
           setPortfolioData({
             userData: {
               name: currentUser.displayName || "User",
@@ -96,6 +107,30 @@ export default function NewCaseStudy() {
 
   const handleStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setPortfolioStyle(e.target.value as "designer" | "developer" | "writer");
+    setHasStyleChanged(true);
+  };
+
+  const handleSaveStyle = async () => {
+    if (caseStudy && caseStudy.id) {
+      try {
+        // Update in the database
+        await updateCaseStudy(caseStudy.id, { portfolioStyle });
+
+        // Update in local state
+        setCaseStudy({
+          ...caseStudy,
+          portfolioStyle,
+        });
+
+        setHasStyleChanged(false);
+        showSuccessToast("Portfolio style saved successfully");
+      } catch (error) {
+        console.error("Error saving portfolio style:", error);
+        showErrorToast("Failed to save portfolio style. Please try again.");
+      }
+    } else {
+      console.error("No case study selected or case study has no ID");
+    }
   };
 
   const handlePublishToggle = async () => {
@@ -209,24 +244,34 @@ export default function NewCaseStudy() {
 
         {portfolioData ? (
           <div>
-            {/* Portfolio Style Dropdown */}
-            <div className="mb-4">
-              <label
-                htmlFor="portfolioStyle"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-              >
-                Portfolio Style
-              </label>
-              <select
-                id="portfolioStyle"
-                value={portfolioStyle}
-                onChange={handleStyleChange}
-                className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              >
-                <option value="designer">Designer</option>
-                <option value="developer">Developer</option>
-                <option value="writer">Writer</option>
-              </select>
+            {/* Portfolio Style Dropdown and Save Button */}
+            <div className="mb-4 flex flex-wrap items-end gap-4">
+              <div>
+                <label
+                  htmlFor="portfolioStyle"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                  Portfolio Style
+                </label>
+                <select
+                  id="portfolioStyle"
+                  value={portfolioStyle}
+                  onChange={handleStyleChange}
+                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                >
+                  <option value="designer">Designer</option>
+                  <option value="developer">Developer</option>
+                  <option value="writer">Writer</option>
+                </select>
+              </div>
+              {hasStyleChanged && (
+                <button
+                  onClick={handleSaveStyle}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition"
+                >
+                  Save Style
+                </button>
+              )}
             </div>
 
             {/* Portfolio Preview */}

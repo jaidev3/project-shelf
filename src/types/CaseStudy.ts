@@ -7,6 +7,7 @@ export interface CaseStudy {
   tags: string[];
   overview: string;
   isPublished: boolean;
+  portfolioStyle?: "designer" | "developer" | "writer";
 
   // Media gallery
   gallery: MediaItem[];
