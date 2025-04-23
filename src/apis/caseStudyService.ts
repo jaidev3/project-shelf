@@ -199,7 +199,6 @@ export async function getPublicCaseStudies(username: string) {
       collection(db, "caseStudies"),
       where("username", "==", username),
       where("isPublished", "==", true),
-      orderBy("createdAt", "desc")
     );
 
     const querySnapshot = await getDocs(caseStudiesQuery);

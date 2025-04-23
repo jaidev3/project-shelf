@@ -1,9 +1,41 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
+import { getCaseStudy } from "../../apis/caseStudyService";
+import {
+  CaseStudy as CaseStudyType,
+  MediaItem,
+  TimelineItem,
+  TestimonialItem,
+} from "../../types/CaseStudy";
+
+// Define types for the dummy data
+interface DummyProcessItem {
+  title: string;
+  description: string;
+}
+
+interface DummyCaseStudy {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  overview?: string;
+  challenge?: string;
+  process?: DummyProcessItem[];
+  results?: string[];
+  tools?: string[];
+}
+
+interface DummyUser {
+  name: string;
+  title: string;
+  caseStudies: DummyCaseStudy[];
+}
 
 // Import the dummy data (in real app, this would be from a central data store)
 // Using a smaller dataset for simplicity
-const DUMMY_USERS = {
+const DUMMY_USERS: Record<string, DummyUser> = {
   alice: {
     name: "Alice Cooper",
     title: "UX Designer & Researcher",
@@ -102,33 +134,124 @@ const DUMMY_USERS = {
 };
 
 export default function CaseStudyDetails() {
-  const { username, caseStudyId } = useParams();
+  const { username, caseStudyId } = useParams<{
+    username: string;
+    caseStudyId: string;
+  }>();
   const location = useLocation();
+  const [caseStudy, setCaseStudy] = useState<CaseStudyType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Determine if we're in the example route or regular route
   const isExampleRoute = location.pathname.startsWith("/example/");
   const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
 
-  // If username doesn't exist or case study doesn't exist, show not found message
-  const user = username && DUMMY_USERS[username.toLowerCase()];
-  const caseStudy = user?.caseStudies.find((cs) => cs.id === caseStudyId);
+  useEffect(() => {
+    async function fetchCaseStudy() {
+      if (!caseStudyId || !username) return;
 
-  if (!user || !caseStudy) {
+      try {
+        // If in example route, use dummy data
+        if (isExampleRoute) {
+          const dummyUser = DUMMY_USERS[username.toLowerCase()];
+          if (dummyUser) {
+            const dummyCaseStudy = dummyUser.caseStudies.find(
+              (cs) => cs.id === caseStudyId
+            );
+
+            if (dummyCaseStudy) {
+              // Create a dummy case study object that matches the CaseStudy type
+              const fullDummyCaseStudy: CaseStudyType = {
+                id: dummyCaseStudy.id,
+                userId: "dummy-user-id",
+                username: username,
+                title: dummyCaseStudy.title,
+                description: dummyCaseStudy.description,
+                image: dummyCaseStudy.image,
+                tags: dummyCaseStudy.tags,
+                overview: dummyCaseStudy.overview || "No overview available",
+                isPublished: true,
+                portfolioStyle: "designer",
+                gallery: [],
+                timeline: dummyCaseStudy.process
+                  ? dummyCaseStudy.process.map((item, index) => ({
+                      id: `step-${index}`,
+                      title: item.title,
+                      description: item.description,
+                      order: index,
+                    }))
+                  : [],
+                tools: dummyCaseStudy.tools || [],
+                outcomes: {
+                  metrics: dummyCaseStudy.results || [],
+                  testimonials: [],
+                },
+              };
+
+              setCaseStudy(fullDummyCaseStudy);
+            }
+          }
+          setLoading(false);
+          return;
+        }
+
+        // If not in example route, get real data
+        const fetchedCaseStudy = (await getCaseStudy(
+          caseStudyId
+        )) as CaseStudyType;
+
+        // Verify the case study belongs to the username in the URL and is published
+        if (
+          !fetchedCaseStudy ||
+          fetchedCaseStudy.username !== username ||
+          !fetchedCaseStudy.isPublished
+        ) {
+          setError(
+            "This case study doesn't exist or isn't publicly available."
+          );
+          setLoading(false);
+          return;
+        }
+
+        setCaseStudy(fetchedCaseStudy);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching case study:", error);
+        setError(
+          "Failed to load case study details. The study may not exist or isn't published."
+        );
+        setLoading(false);
+      }
+    }
+
+    fetchCaseStudy();
+  }, [caseStudyId, username, isExampleRoute]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <div className="text-xl dark:text-white">Loading case study...</div>
+      </div>
+    );
+  }
+
+  if (error || !caseStudy) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-3xl font-bold mb-4 dark:text-white">
           Case Study Not Found
         </h2>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-          We couldn't find the requested case study. It may have been removed or
-          doesn't exist.
+          {error ||
+            "We couldn't find the requested case study. It may have been removed or doesn't exist."}
         </p>
-        {user ? (
+        {username ? (
           <Link
             to={`${routePrefix}`}
             className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
           >
-            Back to {user.name}'s Portfolio
+            Back to Portfolio
           </Link>
         ) : (
           <Link
@@ -141,6 +264,19 @@ export default function CaseStudyDetails() {
       </div>
     );
   }
+
+  // Add copy URL functionality
+  const handleCopyUrl = () => {
+    const url = window.location.href;
+    navigator.clipboard
+      .writeText(url)
+      .then(() => {
+        alert("URL copied to clipboard!");
+      })
+      .catch((err) => {
+        console.error("Failed to copy URL: ", err);
+      });
+  };
 
   return (
     <div className="case-study-details-page">
@@ -174,11 +310,33 @@ export default function CaseStudyDetails() {
                       d="M15 19l-7-7 7-7"
                     />
                   </svg>
-                  Back to {user.name}'s portfolio
+                  Back to portfolio
                 </Link>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
-                  {caseStudy.title}
-                </h1>
+                <div className="flex justify-between items-center w-full">
+                  <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                    {caseStudy.title}
+                  </h1>
+                  <button
+                    onClick={handleCopyUrl}
+                    className="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                      />
+                    </svg>
+                    Share
+                  </button>
+                </div>
                 <p className="text-xl text-white/90 max-w-2xl">
                   {caseStudy.description}
                 </p>
@@ -189,7 +347,7 @@ export default function CaseStudyDetails() {
       </header>
 
       {/* Main content */}
-      <main className="bg-white dark:bg-neutral-900 py-12">
+      <main className="py-12 bg-white dark:bg-neutral-900">
         <div className="container mx-auto px-4 md:px-8">
           {/* Tags section */}
           <div className="flex flex-wrap gap-2 mb-8">
@@ -216,28 +374,16 @@ export default function CaseStudyDetails() {
             </section>
           )}
 
-          {/* Challenge section */}
-          {caseStudy.challenge && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-4 dark:text-white">
-                The Challenge
-              </h2>
-              <p className="text-gray-700 dark:text-gray-300">
-                {caseStudy.challenge}
-              </p>
-            </section>
-          )}
-
           {/* Process/Timeline section */}
-          {caseStudy.process && (
+          {caseStudy.timeline && caseStudy.timeline.length > 0 && (
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-6 dark:text-white">
                 Process
               </h2>
               <div className="space-y-6">
-                {caseStudy.process.map((step, index) => (
+                {caseStudy.timeline.map((step, index) => (
                   <div
-                    key={index}
+                    key={step.id || index}
                     className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg"
                   >
                     <div className="flex items-center mb-2">
@@ -258,49 +404,36 @@ export default function CaseStudyDetails() {
           )}
 
           {/* Results section */}
-          {caseStudy.results && (
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6 dark:text-white">
-                Results
-              </h2>
-              <div className="bg-gray-50 dark:bg-neutral-800 rounded-lg p-6">
-                <ul className="space-y-3">
-                  {caseStudy.results.map((result, index) => (
-                    <li key={index} className="flex items-start">
-                      <svg
-                        className="h-6 w-6 text-green-500 mr-2 flex-shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span className="text-gray-700 dark:text-gray-300">
+          {caseStudy.outcomes &&
+            caseStudy.outcomes.metrics &&
+            caseStudy.outcomes.metrics.length > 0 && (
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">
+                  Results
+                </h2>
+                <div className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg">
+                  <ul className="space-y-3 list-disc list-inside text-gray-700 dark:text-gray-300">
+                    {caseStudy.outcomes.metrics.map((result, index) => (
+                      <li key={index} className="pl-2">
                         {result}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </section>
+            )}
 
-          {/* Tools & Technologies section */}
-          {caseStudy.tools && (
+          {/* Tools section */}
+          {caseStudy.tools && caseStudy.tools.length > 0 && (
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-4 dark:text-white">
                 Tools & Technologies
               </h2>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 {caseStudy.tools.map((tool) => (
                   <span
                     key={tool}
-                    className="bg-gray-200 dark:bg-neutral-700 px-4 py-2 rounded-lg text-gray-800 dark:text-gray-200"
+                    className="bg-gray-200 dark:bg-neutral-700 text-gray-800 dark:text-gray-200 px-3 py-1 rounded-full"
                   >
                     {tool}
                   </span>
@@ -309,7 +442,71 @@ export default function CaseStudyDetails() {
             </section>
           )}
 
-          {/* Navigation links */}
+          {/* Image gallery */}
+          {caseStudy.gallery && caseStudy.gallery.length > 0 && (
+            <section className="mb-12">
+              <h2 className="text-2xl font-bold mb-6 dark:text-white">
+                Gallery
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {caseStudy.gallery.map((item, index) => (
+                  <div
+                    key={item.id || index}
+                    className="bg-gray-200 dark:bg-neutral-700 rounded-lg overflow-hidden"
+                  >
+                    <img
+                      src={item.url}
+                      alt={item.caption || `Gallery image ${index + 1}`}
+                      className="w-full h-48 object-cover"
+                    />
+                    {item.caption && (
+                      <div className="p-3">
+                        <h3 className="font-medium dark:text-white">
+                          {item.caption}
+                        </h3>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Testimonials */}
+          {caseStudy.outcomes &&
+            caseStudy.outcomes.testimonials &&
+            caseStudy.outcomes.testimonials.length > 0 && (
+              <section className="mb-12">
+                <h2 className="text-2xl font-bold mb-6 dark:text-white">
+                  Testimonials
+                </h2>
+                <div className="space-y-6">
+                  {caseStudy.outcomes.testimonials.map((testimonial, index) => (
+                    <blockquote
+                      key={testimonial.id || index}
+                      className="bg-gray-50 dark:bg-neutral-800 p-6 rounded-lg border-l-4 border-indigo-500"
+                    >
+                      <p className="text-gray-700 dark:text-gray-300 italic mb-4">
+                        "{testimonial.quote}"
+                      </p>
+                      <footer className="flex items-center">
+                        <div>
+                          <p className="font-medium dark:text-white">
+                            {testimonial.author}
+                          </p>
+                          {testimonial.position && testimonial.company && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              {testimonial.position}, {testimonial.company}
+                            </p>
+                          )}
+                        </div>
+                      </footer>
+                    </blockquote>
+                  ))}
+                </div>
+              </section>
+            )}
+
           <div className="border-t border-gray-200 dark:border-gray-700 pt-8 mt-12">
             <div className="flex flex-col sm:flex-row justify-between">
               <Link
@@ -318,12 +515,26 @@ export default function CaseStudyDetails() {
               >
                 Back to Portfolio
               </Link>
-              <Link
-                to="/"
-                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-center sm:text-left"
+              <button
+                onClick={handleCopyUrl}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors text-center sm:text-left flex items-center justify-center gap-2"
               >
-                View More Projects
-              </Link>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                  />
+                </svg>
+                Share Case Study
+              </button>
             </div>
           </div>
         </div>

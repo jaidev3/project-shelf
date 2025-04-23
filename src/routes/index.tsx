@@ -38,13 +38,11 @@ export const AppRoutes = () => {
       {/* Example portfolio routes */}
       <Route path="/example/:username" element={<PublicLayout />}>
         <Route index element={<PortfolioHome />} />
-        <Route path="case-study/:caseStudyId" element={<CaseStudyDetails />} />
       </Route>
 
       {/* Portfolio public routes - Dynamic based on username */}
       <Route path="/:username" element={<PublicLayout />}>
         <Route index element={<PortfolioHome />} />
-        <Route path="case-study/:caseStudyId" element={<CaseStudyDetails />} />
       </Route>
 
       {/* Dashboard protected routes */}

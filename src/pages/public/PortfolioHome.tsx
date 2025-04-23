@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link, useLocation } from "react-router-dom";
 import DesignerPortfolio from "../../components/portfolios/DesignerPortfolio";
 import DeveloperPortfolio from "../../components/portfolios/DeveloperPortfolio";
 import WriterPortfolio from "../../components/portfolios/WriterPortfolio";
+import { getPublicCaseStudies } from "../../apis/caseStudyService";
+import { CaseStudy } from "../../types/CaseStudy";
 
 // Updated type definition for users
 type User = {
@@ -120,15 +122,89 @@ const DUMMY_USERS: Record<string, User> = {
 export default function PortfolioHome() {
   const { username } = useParams<{ username: string }>();
   const location = useLocation();
+  const [loading, setLoading] = useState(true);
+  const [caseStudies, setCaseStudies] = useState<CaseStudy[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   // Determine if we're in the example route or regular route
   const isExampleRoute = location.pathname.startsWith("/example/");
   const routePrefix = isExampleRoute ? `/example/${username}` : `/${username}`;
 
-  // If username doesn't exist in our dummy data, show a not found message
-  const userData = username ? DUMMY_USERS[username.toLowerCase()] : undefined;
+  useEffect(() => {
+    async function fetchCaseStudies() {
+      if (!username) return;
 
-  if (!userData) {
+      try {
+        // If it's an example route, use dummy data
+        if (isExampleRoute && DUMMY_USERS[username.toLowerCase()]) {
+          const dummyUser = DUMMY_USERS[username.toLowerCase()];
+          // Create proper CaseStudy objects from dummy data
+          const dummyCaseStudies = dummyUser.caseStudies.map((cs) => ({
+            id: cs.id,
+            userId: "dummy-user-id",
+            username: username,
+            title: cs.title,
+            description: cs.description,
+            image: cs.image,
+            tags: cs.tags,
+            overview: "Dummy overview text",
+            isPublished: true,
+            portfolioStyle: "designer",
+            gallery: [],
+            timeline: [],
+            tools: [],
+            outcomes: {
+              metrics: [],
+              testimonials: [],
+            },
+          })) as CaseStudy[];
+
+          setCaseStudies(dummyCaseStudies);
+          setLoading(false);
+          return;
+        }
+
+        // Otherwise fetch real data
+        const studies = await getPublicCaseStudies(username);
+        setCaseStudies(studies as CaseStudy[]);
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching case studies:", err);
+        setError("Failed to load portfolio data. Please try again later.");
+        setLoading(false);
+      }
+    }
+
+    fetchCaseStudies();
+  }, [username, isExampleRoute]);
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <div className="text-xl dark:text-white">Loading portfolio...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-12 text-center">
+        <h2 className="text-3xl font-bold mb-4 dark:text-white">
+          Error Loading Portfolio
+        </h2>
+        <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">{error}</p>
+        <Link
+          to="/"
+          className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+        >
+          Return to Home
+        </Link>
+      </div>
+    );
+  }
+
+  // If no case studies found, show a not found message
+  if (caseStudies.length === 0) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <h2 className="text-3xl font-bold mb-4 dark:text-white">
@@ -136,7 +212,7 @@ export default function PortfolioHome() {
         </h2>
         <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
           We couldn't find a portfolio for "{username}". This user might not
-          exist or hasn't created a portfolio yet.
+          exist or hasn't published any case studies yet.
         </p>
         <Link
           to="/"
@@ -148,29 +224,31 @@ export default function PortfolioHome() {
     );
   }
 
-  // Determine which portfolio component to use based on user's title/profession
-  const userProfession = userData.title.toLowerCase();
-  const isDesigner =
-    userProfession.includes("design") ||
-    userProfession.includes("ux") ||
-    userProfession.includes("ui");
-  const isDeveloper =
-    userProfession.includes("develop") ||
-    userProfession.includes("engineer") ||
-    userProfession.includes("code") ||
-    userProfession.includes("stack");
-  const isWriter =
-    userProfession.includes("writ") ||
-    userProfession.includes("content") ||
-    userProfession.includes("copy") ||
-    userProfession.includes("editor");
+  // Use the first case study to get user info
+  const firstCaseStudy = caseStudies[0];
+  const userData = {
+    name: firstCaseStudy.username || username || "",
+    title: firstCaseStudy.title || "Professional",
+    bio: firstCaseStudy.overview || "",
+    avatar: firstCaseStudy.image || "",
+    caseStudies: caseStudies.map((cs) => ({
+      id: cs.id || "",
+      title: cs.title,
+      description: cs.description,
+      image: cs.image || "",
+      tags: cs.tags,
+    })),
+  };
+
+  // Determine which portfolio component to use based on portfolio style
+  const portfolioStyle = firstCaseStudy.portfolioStyle || "developer";
 
   // Return the appropriate portfolio component
-  if (isDesigner) {
+  if (portfolioStyle === "designer") {
     return <DesignerPortfolio userData={userData} username={username || ""} />;
-  } else if (isDeveloper) {
+  } else if (portfolioStyle === "developer") {
     return <DeveloperPortfolio userData={userData} username={username || ""} />;
-  } else if (isWriter) {
+  } else if (portfolioStyle === "writer") {
     return <WriterPortfolio userData={userData} username={username || ""} />;
   }
 

@@ -415,6 +415,7 @@ export default function CaseStudyEditor() {
     <div className="case-study-editor-page pb-12">
       <HeaderSection
         caseStudyId={caseStudyId}
+        username={watchedUsername}
         isPublished={watchedValues.isPublished}
         isSaving={isSaving}
         onSave={handleSave}
