@@ -149,7 +149,14 @@ export default function PortfolioHome() {
             tags: cs.tags,
             overview: "Dummy overview text",
             isPublished: true,
-            portfolioStyle: "designer",
+            portfolioStyle:
+              username.toLowerCase() === "alice"
+                ? "designer"
+                : username.toLowerCase() === "bob"
+                ? "developer"
+                : username.toLowerCase() === "carol"
+                ? "writer"
+                : "designer",
             gallery: [],
             timeline: [],
             tools: [],

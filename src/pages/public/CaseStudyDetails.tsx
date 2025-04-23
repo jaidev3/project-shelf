@@ -131,6 +131,60 @@ const DUMMY_USERS: Record<string, DummyUser> = {
       },
     ],
   },
+  carol: {
+    name: "Carol Martinez",
+    title: "Content Strategist & Writer",
+    caseStudies: [
+      {
+        id: "cs1",
+        title: "SaaS Content Marketing Strategy",
+        description:
+          "Developed a content strategy that increased organic traffic by 140%",
+        image:
+          "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+        tags: ["Content Strategy", "SaaS", "SEO"],
+        overview:
+          "The client, a SaaS company in the project management space, was struggling to generate organic traffic and quality leads. I developed a comprehensive content strategy focused on solving user pain points.",
+        challenge:
+          "The client had minimal organic visibility and was relying heavily on paid acquisition channels, resulting in high CAC and limited reach.",
+        process: [
+          {
+            title: "Audience Research",
+            description:
+              "Conducted customer interviews and surveyed existing users to understand their challenges, motivations, and search behaviors.",
+          },
+          {
+            title: "Keyword & Competitive Analysis",
+            description:
+              "Performed comprehensive keyword research and analyzed content strategies of top competitors to identify content gaps and opportunities.",
+          },
+          {
+            title: "Content Framework Development",
+            description:
+              "Created a content pillar structure with supporting topics mapped to the buyer's journey and key user personas.",
+          },
+          {
+            title: "Content Calendar & Production",
+            description:
+              "Developed a 6-month content calendar and produced a mix of blog posts, guides, and resource pages optimized for search intent.",
+          },
+        ],
+        results: [
+          "Increased organic traffic by 140% in six months",
+          "Reduced customer acquisition cost by 37%",
+          "Improved conversion rate from organic traffic by 28%",
+          "Generated 43 high-quality backlinks from industry publications",
+        ],
+        tools: [
+          "SEMrush",
+          "Ahrefs",
+          "Clearscope",
+          "Google Analytics",
+          "Hotjar",
+        ],
+      },
+    ],
+  },
 };
 
 export default function CaseStudyDetails() {
@@ -172,7 +226,14 @@ export default function CaseStudyDetails() {
                 tags: dummyCaseStudy.tags,
                 overview: dummyCaseStudy.overview || "No overview available",
                 isPublished: true,
-                portfolioStyle: "designer",
+                portfolioStyle:
+                  username.toLowerCase() === "alice"
+                    ? "designer"
+                    : username.toLowerCase() === "bob"
+                    ? "developer"
+                    : username.toLowerCase() === "carol"
+                    ? "writer"
+                    : "designer",
                 gallery: [],
                 timeline: dummyCaseStudy.process
                   ? dummyCaseStudy.process.map((item, index) => ({
