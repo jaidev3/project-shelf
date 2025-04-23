@@ -13,6 +13,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 // Dashboard pages
 import Dashboard from "../pages/dashboard/Dashboard";
 import CaseStudyEditor from "../pages/dashboard/CaseStudyEditor";
+import NewCaseStudy from "../pages/dashboard/NewCaseStudy";
 import ProfileSettings from "../pages/dashboard/ProfileSettings";
 import ThemeSettings from "../pages/dashboard/ThemeSettings";
 
@@ -52,7 +53,8 @@ export const AppRoutes = () => {
       >
         <Route index element={<Dashboard />} />
         <Route path="case-study/:caseStudyId" element={<CaseStudyEditor />} />
-        <Route path="case-study/new" element={<CaseStudyEditor />} />
+        <Route path="case-study/create" element={<CaseStudyEditor />} />
+        <Route path="case-study/" element={<NewCaseStudy />} />
         <Route path="profile" element={<ProfileSettings />} />
         <Route path="theme" element={<ThemeSettings />} />
       </Route>

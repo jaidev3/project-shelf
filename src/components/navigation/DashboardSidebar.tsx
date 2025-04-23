@@ -7,7 +7,7 @@ const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: FiHome },
   {
     name: "New Case Study",
-    path: "/dashboard/case-study/new",
+    path: "/dashboard/case-study",
     icon: FiPlusCircle,
   },
   { name: "Profile", path: "/dashboard/profile", icon: FiUser },
