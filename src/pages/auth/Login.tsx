@@ -68,6 +68,12 @@ export default function Login() {
         <h2 className="text-2xl font-bold mb-6 text-center">
           Sign in to your account
         </h2>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+          login cred: jairao9817@gmail.com
+        </p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+          password: jairao
+        </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <Controller
             name="email"
